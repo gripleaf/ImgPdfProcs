@@ -1,0 +1,30 @@
+{
+	"AccessId":"vdF8mZT6VSJaszCF",
+	"AccessKey":"zGRHc1xfn46UN6Puy4DUhQyp83Sd86",
+	"OSSFrom": {
+		"ServerName":"oss-cn-hangzhou.aliyuncs.com",
+		"QueueName":"frint-files"
+	},
+	"OSSTo":{
+		"ServerName":"oss-cn-hangzhou.aliyuncs.com",
+		"QueueName":"frint-thumbnails"
+	},
+	"MQS": {
+		"ServerName":"http://eq6io89s97.mqs-cn-hangzhou.aliyuncs.com",
+		"QueueName":"fpt-tbl"
+	},
+	"LogPath":"tmp/mylog.log",
+	"tbl_length": 3,
+	"Tmp_Path":"tmp/",
+	"Pdf_Path":{
+		"source":"tmp/source",
+		"transformed":"tmp/transformed",
+		"toimg":"tmp/toimg",
+		"wtmkfile":"tmp/test.pdf"
+	},
+	"MySql":{
+		"user":"root",
+		"password":"password",
+		"server_ip":"127.0.0.1"
+	}
+}
