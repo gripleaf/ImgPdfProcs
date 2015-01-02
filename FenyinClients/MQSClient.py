@@ -25,15 +25,15 @@ class FenyinMQSClient:
             self.__lock.release()
 
             print "Receive Message Succeed!"
-            print "message_id is %s" % self.recv_msg.message_id
-            print "message_body_md5 is %s" % self.recv_msg.message_body_md5
+            #print "message_id is %s" % self.recv_msg.message_id
+            #print "message_body_md5 is %s" % self.recv_msg.message_body_md5
             print "message_body is %s" % self.recv_msg.message_body
-            print "dequeue_count is %s" % self.recv_msg.dequeue_count
-            print "enqueue_time is %s" % self.recv_msg.enqueue_time
-            print "first_dequeue_time is %s" % self.recv_msg.first_dequeue_time
-            print "priority %s" % self.recv_msg.priority
-            print "next_visible_time %s" % self.recv_msg.next_visible_time
-            print "receipt_handle is %s" % self.recv_msg.receipt_handle
+            #print "dequeue_count is %s" % self.recv_msg.dequeue_count
+            #print "enqueue_time is %s" % self.recv_msg.enqueue_time
+            #print "first_dequeue_time is %s" % self.recv_msg.first_dequeue_time
+            #print "priority %s" % self.recv_msg.priority
+            #print "next_visible_time %s" % self.recv_msg.next_visible_time
+            #print "receipt_handle is %s" % self.recv_msg.receipt_handle
             return self.recv_msg
         except MQSExceptionBase, e:
             print "Receive Message Fail:", e

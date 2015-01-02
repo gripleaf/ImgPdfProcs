@@ -67,7 +67,7 @@ def __initialize_fenyin_log():
     global LogPath
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-                        datefmt='%a, %d %b %Y %H:%M:%S',
+                        datefmt='%d %b %Y %H:%M:%S',
                         filename=LogPath,
                         filemode='w')
 
