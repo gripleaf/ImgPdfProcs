@@ -50,7 +50,8 @@ class FenyinMQSClient:
         for i in range(3):
             try:
                 if not hasattr(self,"recv_msg") or self.recv_msg is None:
-                    raise Exception(" recv_msg is None.")
+                    #raise Exception(" recv_msg is None.")
+					return
                 # we need to lock the process
                 self.__lock.acquire()
 
