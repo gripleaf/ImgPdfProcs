@@ -25,15 +25,16 @@ class FenyinOSSClient:
         self.HOST_FROM = Settings.OSSFrom["ServerName"]
         self.__oss_from = OssAPI(self.HOST_FROM, ACCESS_ID, SECRET_ACCESS_KEY)
 
-        self.BUCKET_TO = Settings.OSSTo["QueueName"]
-        self.HOST_TO = Settings.OSSTo["ServerName"]
-        self.__oss_to = OssAPI(self.HOST_TO, ACCESS_ID, SECRET_ACCESS_KEY)
+        self.BUCKET_TO = Settings.OSSTo["QueueName"] 
+        self.HOST_TO = Settings.OSSTo["ServerName"] 
+        self.__oss_to = OssAPI(self.HOST_TO,
+        ACCESS_ID, SECRET_ACCESS_KEY)
 
         print self.HOST_TO, self.BUCKET_TO
 
     def download_file_from_oss(self, object="object_test", filename="object"):
         if os.path.exists(filename):
-            continue
+            return
 
         # 下载bucket中的object，把内容写入到本地文件中
         headers = {}

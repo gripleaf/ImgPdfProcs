@@ -66,9 +66,19 @@ if __name__ == "__main__":
     _ossClient = OSSClient.FenyinOSSClient()
     _mqsClient = MQSClient.FenyinMQSClient()
 
-    WorkerThread()
+    # start the worker thread
+
+    wh = threading.Thread(target=WorkerThread, args=(),
+                          name="WorkerThread " + time.strftime("%m%d%H-%M-%S"))
+    wh.start()
     while True:
-        break
+        time.sleep(10)
+        if not wh.is_alive():
+            wh = threading.Thread(
+                target=WorkerThread, args=(), name="WorkerThread " + time.strftime("%m%d%H-%M-%S"))
+            print "Thread ", wh.name, "start!"
+            continue
+        _mqsClient.MQS_RenewMsg()
 
 
 '''
@@ -107,6 +117,5 @@ if __name__ == "__main__":
     outputStream = file("document-output.pdf", "wb")
     output.write(outputStream)
     outputStream.close()
-
 
 '''
