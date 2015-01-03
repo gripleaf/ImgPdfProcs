@@ -49,7 +49,7 @@ class FenyinMQSClient:
         # change message visibility
         for i in range(3):
             try:
-                if not hasattr(self,recv_msg) or self.recv_msg is None:
+                if not hasattr(self,"recv_msg") or self.recv_msg is None:
                     raise Exception(" recv_msg is None.")
                 # we need to lock the process
                 self.__lock.acquire()
