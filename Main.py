@@ -70,12 +70,16 @@ if __name__ == "__main__":
 
     wh = threading.Thread(target=WorkerThread, args=(),
                           name="WorkerThread " + time.strftime("%m%d%H-%M-%S"))
+    wh.setDaemon(True)
     wh.start()
+
     while True:
         time.sleep(10)
         if not wh.is_alive():
             wh = threading.Thread(
                 target=WorkerThread, args=(), name="WorkerThread " + time.strftime("%m%d%H-%M-%S"))
+            wh.setDaemon(True)
+            wh.start()
             print "Thread ", wh.name, "start!"
             continue
         _mqsClient.MQS_RenewMsg()
