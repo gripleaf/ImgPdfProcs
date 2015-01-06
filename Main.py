@@ -8,6 +8,7 @@ import time
 import os
 import json
 import logging
+import sys
 
 
 def upload_to_oss(msg_body, filelist):
@@ -61,7 +62,45 @@ def WorkerThread():
         _mqsClient.MQS_DeleteMsg()
 
 
-if __name__ == "__main__":
+def daemonize():
+    cwd = os.getcwd()
+
+    try:
+        pid = os.fork()
+        if pid > 0:
+            sys.exit(0)
+    except OSError, e:
+        sys.stderr.write("fork #1 failed: %d (%s)\n" % (e.errno, e.strerror))
+        sys.exit(1)
+
+    # decoup from parent environment
+    os.chdir(cwd)
+    os.setsid()
+    os.umask(0)
+
+    try:
+        pid = os.fork()
+        if pid > 0:
+            sys.exit(0)
+    except OSError, e:
+        sys.stderr.write("fork #2 failed: %d (%s)\n" % (e.errno, e.strerror))
+        sys.exit(1)
+
+    # redirect standard file descriptors
+    sys.stdout.flush()
+    sys.stderr.flush()
+    si = file("/dev/null", "r")
+    so = file("/dev/null", "w")
+    se = file("/dev/null", "w")
+    os.dup2(si.fileno(),sys.stdin.fileno())
+    os.dup2(so.fileno(),sys.stdout.fileno())
+    os.dup2(se.fileno(),sys.stderr.fileno())
+
+    #write pid file
+    main()
+
+
+def main():
     global _ossClient, _mqsClient
     _ossClient = OSSClient.FenyinOSSClient()
     _mqsClient = MQSClient.FenyinMQSClient()
@@ -84,6 +123,9 @@ if __name__ == "__main__":
             continue
         _mqsClient.MQS_RenewMsg()
 
+
+if __name__ == "__main__":
+    daemonize()
 
 '''
     output = PdfFileWriter()
