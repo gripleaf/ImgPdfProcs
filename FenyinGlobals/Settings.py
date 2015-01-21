@@ -5,10 +5,11 @@ import json
 import logging
 import os
 import sys
+import subprocess
 
 importTimes = 0
 
-
+# a method to create path
 def __create_path_re(path_to_create):
     cur_path = ""
     for pp in path_to_create.split(os.path.sep):
@@ -21,7 +22,7 @@ def __create_path_re(path_to_create):
         else:
             os.mkdir(cur_path)
 
-
+# create the path we needed
 def __check_create_path():
     try:
         # tmp file
@@ -36,8 +37,20 @@ def __check_create_path():
         print "create path failed!\n>>>>"
         print ex, "\n<<<<"
 
+# check the network is connected?
+def __check_network_connect():
+    global OSSFrom, OSSTo, MQS
+    res = subprocess.call("ping -c 1 -t 1 " + OSSFrom["ServerName"] + " > /dev/null", shell=True)
+    res += subprocess.call("ping -c 1 -t 2 " + OSSTo["ServerName"] + " > /dev/null", shell=True)
+    res += subprocess.call("ping -c 1 -t 3 " + MQS["ServerName"] + " > /dev/null", shell=True)
+    if not res == 0:
+        print "network is not connected!"
+        sys.exit(-1)
+    print "network is ok!"
 
-def __readconfigfiles(config_file="config.json"):
+
+# read the config file and check if system is ready to run
+def _readconfigfiles(config_file="config.json"):
     global AccessId, AccessKey, OSSFrom, OSSTo, MQS, LogPath, tbl_length, Pdf_Path, Tmp_Path
     if not os.path.isfile(config_file):
         raise Exception(
@@ -61,10 +74,11 @@ def __readconfigfiles(config_file="config.json"):
         sys.exit(-1)
 
     __check_create_path()
+    __check_network_connect()
     Pdf_Path.setdefault("")
 
 
-def __initialize_fenyin_log():
+def _initialize_fenyin_log():
     global LogPath
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
@@ -74,8 +88,9 @@ def __initialize_fenyin_log():
 
 
 def InitOnce():
-    __readconfigfiles()
-    __initialize_fenyin_log()
+    _readconfigfiles()
+    _initialize_fenyin_log()
+
 
 if __name__ == "__main__":
     print "this py script is used to read the json config file"

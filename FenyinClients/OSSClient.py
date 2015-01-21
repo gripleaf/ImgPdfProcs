@@ -20,7 +20,7 @@ class FenyinOSSClient:
     def __init__(self):
         ACCESS_ID = Settings.AccessId
         SECRET_ACCESS_KEY = Settings.AccessKey
-        
+
         self.BUCKET_FROM = Settings.OSSFrom["QueueName"]
         self.HOST_FROM = Settings.OSSFrom["ServerName"]
         self.__oss_from = OssAPI(self.HOST_FROM, ACCESS_ID, SECRET_ACCESS_KEY)
@@ -55,7 +55,7 @@ class FenyinOSSClient:
 
         content_type = "text/HTML"
         headers = {}
-        print "uploading", object, "to", filename
+        print "uploading", filename, "to", object
         res = self.__oss_to.put_object_from_file(
             self.BUCKET_TO, object, filename)
 
