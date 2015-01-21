@@ -2,7 +2,7 @@
 
 #### initialize the environment of server
 
-- sudo apt-get install imagemagic
+- sudo apt-get install imagemagick
 - sudo apt-get install python (you must choose pyhton 2.7)
 - wget http://pybrary.net/pyPdf/pyPdf-1.13.tar.gz
 - tar -zxvf pyPdf-1.13.tar.gz
