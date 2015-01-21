@@ -58,6 +58,7 @@ def __readconfigfiles(config_file="config.json"):
     except Exception, ex:
         print "read config file failed! \n>>>>"
         print ex, "\n<<<<"
+        sys.exit(-1)
 
     __check_create_path()
     Pdf_Path.setdefault("")

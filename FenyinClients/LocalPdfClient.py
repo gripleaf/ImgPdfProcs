@@ -28,7 +28,7 @@ class FenyinPdfProcess:
     def process_pdf(self):
         outputs = PdfFileWriter()
         intputs = PdfFileReader(file(self.pdffile, "rb"))
-        print "tilte = %s " % (intputs.getDocumentInfo().title)
+        #print "tilte = %s " % (intputs.getDocumentInfo().title)
 
         length = min(intputs.getNumPages(), Settings.tbl_length)
         for i in range(length):
@@ -60,6 +60,9 @@ class FenyinPdfProcess:
         img_path = os.path.join(
             img_path, os.path.basename(self.pdffile).replace(".pdf", ""))
         self.__create_path_re(img_path)
+
+        print "convert " + self.outfile + " " +os.path.join(img_path, os.path.basename(self.pdffile).replace(".pdf", ".jpg"))
+
         subprocess.call("convert " + self.outfile + " " +
                         os.path.join(
                             img_path, os.path.basename(self.pdffile).replace(".pdf", ".jpg")),
