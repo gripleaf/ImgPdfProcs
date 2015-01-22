@@ -77,8 +77,9 @@ class FenyinMQSClient:
                 self.recv_msg = None
 
                 self.__lock.release()
-                return
+
                 print "Delete Message Succeed."
+                break
             except MQSExceptionBase, e:
                 self.__lock.release()
                 print "Delete Message Fail:", e
