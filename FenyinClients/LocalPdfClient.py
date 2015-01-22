@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import subprocess
-from pyPdf import PdfFileWriter, PdfFileReader
+from PyPDF2 import PdfFileWriter, PdfFileReader
 import sys
 import os
 
@@ -11,7 +11,6 @@ from FenyinGlobals import Settings
 
 
 class FenyinPdfProcess:
-
     def __init__(self, pdffile, outfile, wtmkfile):
         if not pdffile.endswith(".pdf"):
             raise Exception(
@@ -21,14 +20,24 @@ class FenyinPdfProcess:
         self.wtmkfile = wtmkfile
 
     def __add_water_mark(self, paget, tb):
-        watermark = PdfFileReader(file(self.wtmkfile, "rb"))
+        if not hasattr(self, "watermark") or self.watermark is None:
+            self.watermark = PdfFileReader(file(self.wtmkfile, "rb"), strict=False)
 
-        paget.mergePage(watermark.getPage(tb).rotateClockwise(270))
+        paget.mergePage(self.watermark.getPage(tb).rotateClockwise(270))
 
     def process_pdf(self):
+        print "process", self.pdffile, "..."
         outputs = PdfFileWriter()
-        intputs = PdfFileReader(file(self.pdffile, "rb"))
-        #print "tilte = %s " % (intputs.getDocumentInfo().title)
+        inputs = None
+        try:
+            intputs = PdfFileReader(file(self.pdffile, "rb"), strict=False)
+        except Exception, ex:
+            print "fix pdf ", self.pdffile, "..."
+            fo = file(self.pdffile, "a")
+            fo.write("\r%%EOF\r")
+            fo.close()
+            inputs = PdfFileReader(file(self.pdffile, "rb"), strict=False)
+        # print "tilte = %s " % (intputs.getDocumentInfo().title)
 
         length = min(intputs.getNumPages(), Settings.tbl_length)
         for i in range(length):
@@ -42,11 +51,12 @@ class FenyinPdfProcess:
         outputs.write(outputStream)
         outputStream.close()
 
+
     def __create_path_re(self, path_to_create):
         cur_path = ""
         for pp in path_to_create.split(os.path.sep):
             if pp == "":
-                cur_path="/"
+                cur_path = "/"
                 continue
             cur_path = os.path.join(cur_path, pp)
             if os.path.isdir(cur_path):
@@ -61,7 +71,8 @@ class FenyinPdfProcess:
             img_path, os.path.basename(self.pdffile).replace(".pdf", ""))
         self.__create_path_re(img_path)
 
-        print "convert " + self.outfile + " " +os.path.join(img_path, os.path.basename(self.pdffile).replace(".pdf", ".jpg"))
+        print "convert " + self.outfile + " " + os.path.join(img_path,
+                                                             os.path.basename(self.pdffile).replace(".pdf", ".jpg"))
 
         subprocess.call("convert " + self.outfile + " " +
                         os.path.join(
@@ -78,6 +89,6 @@ if __name__ == '__main__':
     proc.process_pdf(Settings.tbl_length)
     proc.convert_to_image("tmp/test.jpg")
 
-    #ouput = ProcessPdf("test.pdf", "document-output.pdf", 3)
-    #ConvertToImage("document-output.pdf", "tmp/test.jpg")
-    #UploadToOSS("tmp/test.jpg", 3)
+    # ouput = ProcessPdf("test.pdf", "document-output.pdf", 3)
+    # ConvertToImage("document-output.pdf", "tmp/test.jpg")
+    # UploadToOSS("tmp/test.jpg", 3)

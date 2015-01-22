@@ -43,6 +43,8 @@ def handle_pdf_process(msg_body):
 def WorkerThread():
     while True:
 
+        # task beginning
+        print "\n>>>>>>>>>>>>>>>>>"
         # get task
         msg_recv = _mqsClient.MQS_ReceiveMsg()
         if not hasattr(msg_recv, "message_body"):
@@ -60,6 +62,9 @@ def WorkerThread():
 
         # delete mqs msg
         _mqsClient.MQS_DeleteMsg()
+
+        # task ended
+        print "<<<<<<<<<<<<<<<<<"
 
 
 def daemonize():

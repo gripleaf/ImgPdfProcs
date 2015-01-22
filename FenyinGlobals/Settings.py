@@ -40,7 +40,7 @@ def __check_create_path():
 # check the network is connected?
 def __check_network_connect():
     global OSSFrom, OSSTo, MQS
-    if OSSFrom["ServerName"].count("-internal."):
+    if True or OSSFrom["ServerName"].count("-internal."):
         print "network check is cancel."
         return
     res = subprocess.call("ping -c 1 -t 1 " + OSSFrom["ServerName"] + " > /dev/null", shell=True)

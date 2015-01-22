@@ -43,26 +43,36 @@ class FenyinOSSClient:
         # 下载bucket中的object，把内容写入到本地文件中
         headers = {}
 
-        res = self.__oss_from.get_object_to_file(
-            self.BUCKET_FROM, object, filename, headers)
-        if (res.status / 100) == 2:
-            print "get_object_to_file OK"
-        else:
-            print "get_object_to_file ERROR"
+        for i in range(3):
+            try:
+                res = self.__oss_from.get_object_to_file(
+                    self.BUCKET_FROM, object, filename, headers)
+                if (res.status / 100) == 2:
+                    print "vvv get", filename, "OK vvv"
+                    break
+                else:
+                    print "get", filename, "ERROR"
+                    continue
+            except Exception, e:
+                print "download failed... retry", i, "... errorvvv", e.message, "vvv"
 
     def upload_file_to_oss(self, object="object_test", filename="123"):
         # upload the file to a buketƒ√
 
-        content_type = "text/HTML"
-        headers = {}
         print "uploading", filename, "to", object
-        res = self.__oss_to.put_object_from_file(
-            self.BUCKET_TO, object, filename)
+        for i in range(3):
+            try:
+                res = self.__oss_to.put_object_from_file(
+                    self.BUCKET_TO, object, filename)
 
-        if (res.status / 100) == 2:
-            print "put_object_from_file OK"
-        else:
-            print "put_object_from_file ERROR"
+                if (res.status / 100) == 2:
+                    print "^^^ put", filename, " OK ^^^"
+                    break
+                else:
+                    print "^^^ put", filename, "ERROR ^^^"
+                    continue
+            except Exception, e:
+                print "upload failed... retry", i, "... error^^^", e.message, "^^^"
 
 
 if __name__ == '__main__':
