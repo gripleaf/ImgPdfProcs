@@ -130,6 +130,10 @@ def main():
 
 
 if __name__ == "__main__":
-    # daemonize()
-    main()
+    if len(sys.argv) < 2:
+        print "****FRONT****"
+        main()
+    else:
+        print "***BACK****"
+        daemonize()
 
