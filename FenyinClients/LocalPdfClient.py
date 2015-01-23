@@ -28,7 +28,6 @@ class FenyinPdfProcess:
     def process_pdf(self):
         print "process", self.pdffile, "..."
         outputs = PdfFileWriter()
-        inputs = None
         try:
             intputs = PdfFileReader(file(self.pdffile, "rb"), strict=False)
         except Exception, ex:
@@ -65,16 +64,16 @@ class FenyinPdfProcess:
                 os.mkdir(cur_path)
 
     def convert_to_image(self, img_path):
-        if img_path == None:
+        if img_path is None:
             img_path = "/tmp"
         img_path = os.path.join(
             img_path, os.path.basename(self.pdffile).replace(".pdf", ""))
         self.__create_path_re(img_path)
 
-        print "convert " + self.outfile + " " + os.path.join(img_path,
+        print "convert -density 200 " + self.outfile + " " + os.path.join(img_path,
                                                              os.path.basename(self.pdffile).replace(".pdf", ".jpg"))
 
-        subprocess.call("convert " + self.outfile + " " +
+        subprocess.call("convert -density 200 " + self.outfile + " " +
                         os.path.join(
                             img_path, os.path.basename(self.pdffile).replace(".pdf", ".jpg")),
                         shell=True)

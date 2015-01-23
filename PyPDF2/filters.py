@@ -316,7 +316,7 @@ def decodeStreamData(stream):
         filters = (filters,)
     data = stream._data
     for filterType in filters:
-        if filterType == "/FlateDecode":
+        if filterType == "/FlateDecode" or filterType == "/Fl":
             data = FlateDecode.decode(data, stream.get("/DecodeParms"))
         elif filterType == "/ASCIIHexDecode":
             data = ASCIIHexDecode.decode(data)

@@ -11,31 +11,27 @@ import logging
 import sys
 
 
-def upload_to_oss(msg_body, filelist):
-    jobj = json.loads(msg_body)
+def upload_to_oss(obj_key, filelist):
     for file_item in filelist:
-        img_key = jobj["key"] + os.path.basename(file_item).replace(".", "-")
+        img_key = obj_key + os.path.basename(file_item).replace(".", "-")
         _ossClient.upload_file_to_oss(img_key, file_item)
 
 
-def download_from_oss(msg_body):
-    jobj = json.loads(msg_body)
+def download_from_oss(obj_key, obj_id):
     _ossClient.download_file_from_oss(
-        jobj["key"], os.path.join(Settings.Pdf_Path["source"], jobj["id"] + ".pdf"))
+        obj_key, os.path.join(Settings.Pdf_Path["source"], obj_id + ".pdf"))
 
 
-def __create_pdf_task(msg_body):
-    jobj = json.loads(msg_body)
+def create_pdf_task(obj_id):
     proc = LocalPdfClient.FenyinPdfProcess(
-        os.path.join(Settings.Pdf_Path["source"], jobj["id"] + ".pdf"),
-        os.path.join(Settings.Pdf_Path["transformed"], jobj["id"] + ".pdf"),
+        os.path.join(Settings.Pdf_Path["source"], obj_id + ".pdf"),
+        os.path.join(Settings.Pdf_Path["transformed"], obj_id + ".pdf"),
         Settings.Pdf_Path["wtmkfile"])
     return proc
 
 
-def handle_pdf_process(msg_body):
+def handle_pdf_process(proc_pdf):
     # process file
-    proc_pdf = __create_pdf_task(msg_body)
     proc_pdf.process_pdf()
     return proc_pdf.convert_to_image(Settings.Pdf_Path["toimg"])
 
@@ -51,14 +47,27 @@ def WorkerThread():
             time.sleep(1)
             continue
 
+        try:
+            jobj = json.loads(msg_recv.message_body)
+
+            for ite in Settings.Msg_Format:
+                if not jobj.has_key(ite):
+                    raise ValueError("necessary key lack like " + ite)
+
+        except Exception, e:
+            print "load json failed", e.message
+
         # download file from oss
-        download_from_oss(msg_recv.message_body)
+        download_from_oss(jobj["key"], jobj["id"])
+
+        # create the pdf process task
+        proc_pdf = create_pdf_task(jobj["id"])
 
         # handle engine
-        img_list = handle_pdf_process(msg_recv.message_body)
+        img_list = handle_pdf_process(proc_pdf)
 
         # upload file to oss
-        upload_to_oss(msg_recv.message_body, img_list)
+        upload_to_oss(jobj["key"], img_list)
 
         # delete mqs msg
         _mqsClient.MQS_DeleteMsg()
@@ -72,7 +81,7 @@ def daemonize():
 
     try:
         pid = os.fork()
-        if pid > 0:
+        if pid > 0:  # father thread exit
             sys.exit(0)
     except OSError, e:
         sys.stderr.write("fork #1 failed: %d (%s)\n" % (e.errno, e.strerror))
@@ -85,7 +94,7 @@ def daemonize():
 
     try:
         pid = os.fork()
-        if pid > 0:
+        if pid > 0:  # father thread exit
             sys.exit(0)
     except OSError, e:
         sys.stderr.write("fork #2 failed: %d (%s)\n" % (e.errno, e.strerror))
@@ -97,11 +106,11 @@ def daemonize():
     si = file("/dev/null", "r")
     so = file("/dev/null", "w")
     se = file("/dev/null", "w")
-    os.dup2(si.fileno(),sys.stdin.fileno())
-    os.dup2(so.fileno(),sys.stdout.fileno())
-    os.dup2(se.fileno(),sys.stderr.fileno())
+    os.dup2(si.fileno(), sys.stdin.fileno())
+    os.dup2(so.fileno(), sys.stdout.fileno())
+    os.dup2(se.fileno(), sys.stderr.fileno())
 
-    #write pid file
+    # write pid file
     main()
 
 
