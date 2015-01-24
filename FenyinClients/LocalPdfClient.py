@@ -70,12 +70,11 @@ class FenyinPdfProcess:
             img_path, os.path.basename(self.pdffile).replace(".pdf", ""))
         self.__create_path_re(img_path)
 
-        print "convert -density 200 " + self.outfile + " " + os.path.join(img_path,
-                                                             os.path.basename(self.pdffile).replace(".pdf", ".jpg"))
+        print "convert -density 200 -colorspace Gray " + self.outfile + " -transparent \"#ffffff\" " + \
+              os.path.join(img_path, os.path.basename(self.pdffile).replace(".pdf", ".png"))
 
-        subprocess.call("convert -density 200 " + self.outfile + " " +
-                        os.path.join(
-                            img_path, os.path.basename(self.pdffile).replace(".pdf", ".jpg")),
+        subprocess.call("convert -density 200 -colorspace Gray " + self.outfile + " -transparent \"#ffffff\" " +
+                        os.path.join(img_path, os.path.basename(self.pdffile).replace(".pdf", ".png")),
                         shell=True)
         # calc img list
         img_list = os.listdir(img_path)
@@ -86,7 +85,7 @@ if __name__ == '__main__':
     proc = FenyinPdfProcess(
         "tmp/test.pdf", "tmp/document-output.pdf", "tmp/test.pdf")
     proc.process_pdf(Settings.tbl_length)
-    proc.convert_to_image("tmp/test.jpg")
+    proc.convert_to_image("tmp/test.png")
 
     # ouput = ProcessPdf("test.pdf", "document-output.pdf", 3)
     # ConvertToImage("document-output.pdf", "tmp/test.jpg")
