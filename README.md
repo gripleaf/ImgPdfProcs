@@ -4,6 +4,7 @@
 
 - sudo apt-get install imagemagick
 - sudo apt-get install python (you must choose pyhton 2.7)
+-
 
 #### how to run it
 ```shell
