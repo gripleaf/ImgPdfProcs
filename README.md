@@ -4,7 +4,7 @@
 
 - sudo apt-get install imagemagick
 - sudo apt-get install python (you must choose pyhton 2.7)
--
+- sudo easy_install reportlab
 
 #### how to run it
 ```shell

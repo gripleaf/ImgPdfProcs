@@ -20,7 +20,7 @@
 		"source":"tmp/source",
 		"transformed":"tmp/transformed",
 		"toimg":"tmp/toimg",
-		"wtmkfile":"tmp/test.pdf"
+		"wtmkfile":"tmp/watermark.png"
 	},
 	"MySql":{
 		"user":"root",
