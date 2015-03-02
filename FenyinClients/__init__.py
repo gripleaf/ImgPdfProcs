@@ -1,2 +1,2 @@
 print "loading Fenyin Client modules"
-__all__ = ("DBClient", "MQSClient", "OSSClient", "LocalPdfClient")
+__all__ = ("MQSClient", "OSSClient", "LocalPdfClient")

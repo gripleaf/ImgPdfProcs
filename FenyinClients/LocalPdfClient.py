@@ -19,16 +19,17 @@ class FenyinPdfProcess:
         self.outfile = outfile
         self.wtmkfile = wtmkfile
 
-    def __add_water_mark(self, paget, tb):
+    def __add_water_mark(self, paget):
         imgTemp = StringIO()
         imgDoc = canvas.Canvas(imgTemp)
 
         imgDoc.drawImage(self.wtmkfile, 0, 0, 400, 200)
         imgDoc.save()
 
+        print paget.mediaBox.getWidth(), paget.mediaBox.getHeight()
         self.watermark = PdfFileReader(StringIO(imgTemp.getvalue()), strict=False).getPage(0)
 
-        self.watermark.mergePage(paget.rotateClockwise(270))
+        self.watermark.mergePage(paget)
         return self.watermark
 
     def process_pdf(self):
@@ -38,23 +39,21 @@ class FenyinPdfProcess:
             intputs = PdfFileReader(file(self.pdffile, "rb"), strict=False)
         except Exception, ex:
             print "fix pdf ", self.pdffile, "..."
-            fo = file(self.pdffile, "a")
-            fo.write("\r%%EOF\r")
-            fo.close()
-            inputs = PdfFileReader(file(self.pdffile, "rb"), strict=False)
+            return "error"
         # print "tilte = %s " % (intputs.getDocumentInfo().title)
 
         length = min(intputs.getNumPages(), Settings.tbl_length)
         for i in range(length):
             paget = intputs.getPage(i)
             # add water mark to page
-            paget = self.__add_water_mark(paget, i)
+            paget = self.__add_water_mark(paget)
 
             outputs.addPage(paget)
 
         outputStream = file(self.outfile, "wb")
         outputs.write(outputStream)
         outputStream.close()
+        return self.outfile
 
     def __create_path_re(self, path_to_create):
         cur_path = ""

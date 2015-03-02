@@ -17,6 +17,11 @@ def upload_to_oss(obj_key, filelist):
         _ossClient.upload_file_to_oss(img_key, file_item)
 
 
+def upload_pdf_to_oss(obj_key, pdf_file):
+    pdf_key = obj_key + "-tbl"
+    _ossClient.upload_file_to_oss(pdf_key, pdf_file)
+
+
 def download_from_oss(obj_key, obj_id):
     _ossClient.download_file_from_oss(
         obj_key, os.path.join(Settings.Pdf_Path["source"], obj_id + ".pdf"))
@@ -32,8 +37,8 @@ def create_pdf_task(obj_id):
 
 def handle_pdf_process(proc_pdf):
     # process file
-    proc_pdf.process_pdf()
-    return proc_pdf.convert_to_image(Settings.Pdf_Path["toimg"])
+    return proc_pdf.process_pdf()
+    # return proc_pdf.convert_to_image(Settings.Pdf_Path["toimg"])
 
 
 def WorkerThread():
@@ -64,10 +69,11 @@ def WorkerThread():
         proc_pdf = create_pdf_task(jobj["id"])
 
         # handle engine
-        img_list = handle_pdf_process(proc_pdf)
+        res = handle_pdf_process(proc_pdf)
 
         # upload file to oss
-        upload_to_oss(jobj["key"], img_list)
+        # upload_to_oss(jobj["key"], res)
+        upload_pdf_to_oss(jobj["key"], res)
 
         # delete mqs msg
         _mqsClient.MQS_DeleteMsg()
