@@ -11,13 +11,11 @@ try:
 except:
     from OSS_Python_API.oss_xml_handler import *
 import sys
-# sys.path.append("..")
-from FenyinGlobals import Settings
-# sys.path.remove("..")
+import datetime
 
 
 class FenyinOSSClient:
-    def __init__(self):
+    def __init__(self, Settings):
         ACCESS_ID = Settings.AccessId
         SECRET_ACCESS_KEY = Settings.AccessKey
 
@@ -30,9 +28,25 @@ class FenyinOSSClient:
         self.__oss_to = OssAPI(self.HOST_TO,
                                ACCESS_ID, SECRET_ACCESS_KEY)
 
+        if Settings.OSSTo["ExpireTime"] is None or Settings.OSSTo["ExpireTime"] == "":
+            self.Expire_Time = None
+        else:
+            # 2015 10 1 14 23 12
+            try:
+                self.Expire_Time = datetime.datetime(map(int, Settings.OSSTo["ExpireTime"].split(" ")))
+            except Exception, e:
+                self.Expire_Time = None
+
         print self.HOST_TO, self.BUCKET_TO
 
+
     def download_file_from_oss(self, object="object_test", filename="object"):
+        '''
+            @:param object key
+            @:param filename download_file_path
+            @:return None
+        '''
+
         if os.path.exists(filename):
             return
 
@@ -49,14 +63,21 @@ class FenyinOSSClient:
                     self.BUCKET_FROM, object, filename, headers)
                 if (res.status / 100) == 2:
                     print "vvv get", filename, "OK vvv"
-                    break
+                    return True
                 else:
                     print "get", filename, "ERROR"
                     continue
             except Exception, e:
                 print "download failed... retry", i, "... errorvvv", e.message, "vvv"
+        return False
+
 
     def upload_file_to_oss(self, object="object_test", filename="123"):
+        '''
+            @:param object: object File Object
+            @:param filename: filename key
+            @:return: None
+        '''
         # upload the file to a buketƒ√
 
         print "uploading", filename, "to", object
@@ -67,15 +88,55 @@ class FenyinOSSClient:
 
                 if (res.status / 100) == 2:
                     print "^^^ put", filename, " OK ^^^"
-                    break
+                    return True
                 else:
                     print "^^^ put", filename, "ERROR ^^^"
                     continue
             except Exception, e:
                 print "upload failed... retry", i, "... error^^^", e.message, "^^^"
+        return False
+
+
+    def __date_format(self, date="Tue, 03 Mar 2015 05:18:03 GMT"):
+        '''
+            @:param date: Tue, 03 Mar 2015 05:18:03 GMT
+            @:return: datetime
+        '''
+        _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        if date is None:
+            return None
+        gpart = date.split(' ')
+        if len(gpart) != 6:
+            return None
+        mon = 0
+        for it in range(len(_months)):
+            if _months[it] == gpart[2]:
+                mon = it + 1
+                break
+        hour, mins, sec = map(int, gpart[-2].split(":"))
+        try:
+            return datetime.datetime(int(gpart[3]), mon, int(gpart[1]), hour, mins, sec)
+        except Exception, ex:
+            print ex
+            return None
+
+    def check_file_on_oss(self, file_key):
+        # check the file if in oss
+        try:
+            res = self.__oss_to.get_object_info(self.BUCKET_TO, file_key)
+            last_modify = self.__date_format(res.getheader("Last-Modified"))
+            if last_modify is not None and (self.Expire_Time is None or last_modify < self.Expire_Time):
+                return True
+            else:
+                return False
+        except Exception, e:
+            print "checking error: ", e.message
+            return e.message
 
 
 if __name__ == '__main__':
-    fy_oss = FenyinOSSClient()
+    # fy_oss = FenyinOSSClient()
     # res = fy_oss.download_file_from_oss("00131e5fd97a56d5db52670087699598-f2f3154bfdcbaf50870a8569154d00d04956670c-doc-76288", "test2.pdf")
     # fy_oss.upload_file_to_oss("test.pdf","test.pdf")
+    # fy_oss.check_file_on_oss("")
+    pass

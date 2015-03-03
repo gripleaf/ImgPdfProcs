@@ -23,7 +23,7 @@ class FenyinPdfProcess:
                               shell=True)
         if res == 0:
             return self.outfile
-        return "error"
+        return None
 
     def process_pdf(self):
         print "process", self.pdffile, "..."

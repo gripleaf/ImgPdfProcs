@@ -7,9 +7,6 @@ from MQS_Python_SDK.queue import *
 import logging
 import threading
 import time
-# sys.path.append("..")
-from FenyinGlobals import Settings
-# sys.path.remove("..")
 
 
 class FenyinMQSClient:
@@ -86,7 +83,7 @@ class FenyinMQSClient:
 
                 # sys.exit(1)
 
-    def __init__(self):
+    def __init__(self, Settings):
         logging.debug("initialize fenyin mqs client")
         accessId = Settings.AccessId
         accessKey = Settings.AccessKey

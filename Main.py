@@ -12,33 +12,85 @@ import sys
 
 
 def upload_to_oss(obj_key, filelist):
+    '''
+        :param obj_key: file key
+        :param filelist: files to upload
+        :return: None
+    '''
     for file_item in filelist:
         img_key = obj_key + os.path.basename(file_item).replace(".", "-")
         _ossClient.upload_file_to_oss(img_key, file_item)
 
 
 def upload_pdf_to_oss(obj_key, pdf_file):
-    pdf_key = obj_key + "-tbl"
-    _ossClient.upload_file_to_oss(pdf_key, pdf_file)
+    '''
+        :param obj_key: file key before upload
+        :param pdf_file: pdf file path
+        :return: True -> success | False -> fail
+    '''
+    try:
+        pdf_key = obj_key + "-tbl"
+        return _ossClient.upload_file_to_oss(pdf_key, pdf_file)
+    except Exception, e:
+        print "[upload pdf to oss]", e.message
+        return False
 
 
 def download_from_oss(obj_key, obj_id):
-    _ossClient.download_file_from_oss(
-        obj_key, os.path.join(Settings.Pdf_Path["source"], obj_id + ".pdf"))
+    '''
+        @:param obj_key: file key
+        @:param obj_id: file id
+        @:return:s True -> success | False -> fail
+    '''
+
+    try:
+        return _ossClient.download_file_from_oss(
+            obj_key, os.path.join(Settings.Pdf_Path["source"], obj_id + ".pdf"))
+    except Exception, ex:
+        print "[download from oss]", ex.message
+        return False
+
+
+def check_file_on_oss(obj_key):
+    '''
+        @:param obj_key: file key
+        @:return: True -> success | False -> fail
+    '''
+
+    try:
+        return _ossClient.check_file_on_oss(obj_key)
+    except Exception, ex:
+        print "[check file on oss]", ex.message
+        return False
 
 
 def create_pdf_task(obj_id):
-    proc = LocalPdfClient.FenyinPdfProcess(
-        os.path.join(Settings.Pdf_Path["source"], obj_id + ".pdf"),
-        os.path.join(Settings.Pdf_Path["transformed"], obj_id + ".pdf"),
-        Settings.Pdf_Path["wtmkfile"])
-    return proc
+    '''
+        :param obj_id: file id
+        :return: instance -> success | None -> fail
+    '''
+    try:
+        proc = LocalPdfClient.FenyinPdfProcess(
+            os.path.join(Settings.Pdf_Path["source"], obj_id + ".pdf"),
+            os.path.join(Settings.Pdf_Path["transformed"], obj_id + ".pdf"),
+            Settings.Pdf_Path["wtmkfile"])
+        return proc
+    except Exception, e:
+        return None
 
 
 def handle_pdf_process(proc_pdf):
-    # process file
-    return proc_pdf.process_pdf()
-    # return proc_pdf.convert_to_image(Settings.Pdf_Path["toimg"])
+    '''
+        :param proc_pdf: instance of LocalPdfClient.FenyinPdfProcess
+        :return: string(file path) -> success | None -> fail
+    '''
+    try:
+        # process file
+        return proc_pdf.process_pdf()
+        # return proc_pdf.convert_to_image(Settings.Pdf_Path["toimg"])
+    except Exception, e:
+        print "[handle pdf process]", e.message
+        return None
 
 
 def WorkerThread():
@@ -62,18 +114,39 @@ def WorkerThread():
         except Exception, e:
             print "load json failed", e.message
 
+        # check file on oss
+        res = check_file_on_oss(jobj['key'])
+
+        # if file on oss, then delete msg
+        if res == True:
+            # delete mqs msg
+            _mqsClient.MQS_DeleteMsg()
+            continue
+
         # download file from oss
-        download_from_oss(jobj["key"], jobj["id"])
+        res = download_from_oss(jobj["key"], jobj["id"])
+
+        # if file download failed, then delete msg
+        if res == False:
+            # delete mqs msg
+            _mqsClient.MQS_DeleteMsg()
+            continue
 
         # create the pdf process task
         proc_pdf = create_pdf_task(jobj["id"])
+
+        # if proc_pdf is None, then delete msg
+        if proc_pdf is None:
+            # delete mqs msg
+            _mqsClient.MQS_DeleteMsg()
+            continue
 
         # handle engine
         res = handle_pdf_process(proc_pdf)
 
         # upload file to oss
         # upload_to_oss(jobj["key"], res)
-        if res != "error":
+        if res is not None:
             upload_pdf_to_oss(jobj["key"], res)
 
         # delete mqs msg
@@ -123,8 +196,8 @@ def daemonize():
 
 def main():
     global _ossClient, _mqsClient
-    _ossClient = OSSClient.FenyinOSSClient()
-    _mqsClient = MQSClient.FenyinMQSClient()
+    _ossClient = OSSClient.FenyinOSSClient(Settings)
+    _mqsClient = MQSClient.FenyinMQSClient(Settings)
 
     # start the worker thread
 
