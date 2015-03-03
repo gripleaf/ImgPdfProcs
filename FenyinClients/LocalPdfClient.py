@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import subprocess
-from PyPDF2 import PdfFileWriter, PdfFileReader
-from reportlab.pdfgen import canvas
 import os
-from StringIO import StringIO
+import sys
 # sys.path.append("..")
 from FenyinGlobals import Settings
 # sys.path.remove("..")
@@ -18,42 +16,18 @@ class FenyinPdfProcess:
         self.pdffile = pdffile
         self.outfile = outfile
         self.wtmkfile = wtmkfile
+        self.script_path = os.path.join(os.path.dirname(os.path.abspath("__file__")), "FenyinClients", "watermark.jar")
 
-    def __add_water_mark(self, paget):
-        imgTemp = StringIO()
-        imgDoc = canvas.Canvas(imgTemp)
-
-        imgDoc.drawImage(self.wtmkfile, 0, 0, 400, 200)
-        imgDoc.save()
-
-        print paget.mediaBox.getWidth(), paget.mediaBox.getHeight()
-        self.watermark = PdfFileReader(StringIO(imgTemp.getvalue()), strict=False).getPage(0)
-
-        self.watermark.mergePage(paget)
-        return self.watermark
+    def __add_water_mark(self):
+        res = subprocess.call("java -jar %s %s %s %s" % (self.script_path, self.pdffile, self.wtmkfile, self.outfile),
+                              shell=True)
+        if res == 0:
+            return self.outfile
+        return "error"
 
     def process_pdf(self):
         print "process", self.pdffile, "..."
-        outputs = PdfFileWriter()
-        try:
-            intputs = PdfFileReader(file(self.pdffile, "rb"), strict=False)
-        except Exception, ex:
-            print "fix pdf ", self.pdffile, "..."
-            return "error"
-        # print "tilte = %s " % (intputs.getDocumentInfo().title)
-
-        length = min(intputs.getNumPages(), Settings.tbl_length)
-        for i in range(length):
-            paget = intputs.getPage(i)
-            # add water mark to page
-            paget = self.__add_water_mark(paget)
-
-            outputs.addPage(paget)
-
-        outputStream = file(self.outfile, "wb")
-        outputs.write(outputStream)
-        outputStream.close()
-        return self.outfile
+        return self.__add_water_mark()
 
     def __create_path_re(self, path_to_create):
         cur_path = ""

@@ -73,7 +73,8 @@ def WorkerThread():
 
         # upload file to oss
         # upload_to_oss(jobj["key"], res)
-        upload_pdf_to_oss(jobj["key"], res)
+        if res != "error":
+            upload_pdf_to_oss(jobj["key"], res)
 
         # delete mqs msg
         _mqsClient.MQS_DeleteMsg()
