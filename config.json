@@ -21,7 +21,7 @@
     "source": "tmp/source",
     "transformed": "tmp/transformed",
     "toimg": "tmp/toimg",
-    "wtmkfile": "tmp/watermark.png"
+    "wtmkfile": "resources/watermark.png"
   },
   "MySql": {
     "user": "root",
