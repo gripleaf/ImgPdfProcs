@@ -19,13 +19,21 @@ class FenyinPdfProcess:
         self.script_path = os.path.join(os.path.dirname(os.path.abspath("__file__")), "FenyinClients", "watermark.jar")
 
     def __add_water_mark(self):
-        res = subprocess.call("java -jar %s %s %s %s" % (self.script_path, self.pdffile, self.wtmkfile, self.outfile),
-                              shell=True)
+        '''add watermark on pdf file
+            :return: file of path -> success | None -> fail
+        '''
+        # java -jar XX.jar in_pdf_file watermark_image out_pdf_file
+        res = subprocess.call(
+            "java -jar %s %s %s %s > /dev/null" % (self.script_path, self.pdffile, self.wtmkfile, self.outfile),
+            shell=True)
         if res == 0:
             return self.outfile
         return None
 
     def process_pdf(self):
+        '''
+            :return: file of path -> success | None -> fail
+        '''
         print "process", self.pdffile, "..."
         return self.__add_water_mark()
 
@@ -107,11 +115,7 @@ class FenyinPdfProcess:
 
 
 if __name__ == '__main__':
-    proc = FenyinPdfProcess(
-        "tmp/test.pdf", "tmp/document-output.pdf", "tmp/test.pdf")
-    proc.process_pdf(Settings.tbl_length)
-    proc.convert_to_image("tmp/test.png")
-
+    pass
     # ouput = ProcessPdf("test.pdf", "document-output.pdf", 3)
     # ConvertToImage("document-output.pdf", "tmp/test.jpg")
     # UploadToOSS("tmp/test.jpg", 3)

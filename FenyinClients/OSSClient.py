@@ -98,7 +98,7 @@ class FenyinOSSClient:
 
 
     def __date_format(self, date="Tue, 03 Mar 2015 05:18:03 GMT"):
-        '''
+        '''convert a
             @:param date: Tue, 03 Mar 2015 05:18:03 GMT
             @:return: datetime
         '''
@@ -121,6 +121,10 @@ class FenyinOSSClient:
             return None
 
     def check_file_on_oss(self, file_key):
+        ''' check the file if on oss and not expire
+            :param file_key: key of file in oss
+            :return: True -> exist | False -> not exist or expire
+        '''
         # check the file if in oss
         try:
             res = self.__oss_to.get_object_info(self.BUCKET_TO, file_key)
