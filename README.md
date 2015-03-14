@@ -7,10 +7,16 @@
 - sudo easy_install reportlab
 
 #### how to run it
+you have to choices to run it.
+first, run it on foreground.
 ```shell
     sudo python Main.py
 ```
 
+second, run it on background
+```shell
+	sudo python Main.py start
+```
 
 ### detail ####
 
