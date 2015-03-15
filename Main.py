@@ -8,6 +8,7 @@ import time
 import os
 import json
 import logging
+import urllib
 import sys
 
 
@@ -108,6 +109,21 @@ def handle_pdf_process(proc_pdf):
         return None
 
 
+def handle_callback(url_cb):
+    '''callback to finish the task
+    :param url_cb: the url of callback
+    :return: True -> success | False -> fail
+    '''
+    if url_cb is None or url_cb == "":
+        return True
+    try:
+        print urllib.urlopen(url_cb).read()
+        return True
+    except Exception, ex:
+        print ex.message
+        return False
+
+
 def WorkerThread():
     while True:
 
@@ -166,6 +182,9 @@ def WorkerThread():
 
         if res_img is not None:
             upload_img_to_oss(jobj["key"], res_img)
+
+        if jobj.has_key("callback"):
+            handle_callback(jobj["callback"])
 
         # delete mqs msg
         _mqsClient.MQS_DeleteMsg()

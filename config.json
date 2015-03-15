@@ -3,7 +3,7 @@
   "AccessKey": "zGRHc1xfn46UN6Puy4DUhQyp83Sd86",
   "OSSFrom": {
     "ServerName": "oss-cn-hangzhou.aliyuncs.com",
-    "QueueName": "frint-files"
+    "QueueName": "frint-files-test"
   },
   "OSSTo": {
     "ServerName": "oss-cn-hangzhou.aliyuncs.com",
