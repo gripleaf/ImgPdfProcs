@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import thread
 import threading
-from FenyinGlobals import Settings
+from FenyinGlobals import Settings, MyDeamon, RandomHelper
 from FenyinClients import DBClient, MQSClient, OSSClient, LocalPdfClient
 import time
 import os
@@ -20,6 +20,20 @@ def upload_to_oss(obj_key, filelist):
     for file_item in filelist:
         img_key = obj_key + os.path.basename(file_item).replace(".", "-")
         _ossClient.upload_file_to_oss(img_key, file_item)
+
+
+def upload_img_to_oss(obj_key, img_file):
+    '''
+    :param obj_key: file key before upload
+    :param img_file: image file path
+    :return: True -> success | False -> fail
+    '''
+    try:
+        img_key = obj_key + "-img0"
+        return _ossClient.upload_file_to_oss(img_key, img_file)
+    except Exception, e:
+        print "[upload img file to oss]", e.message
+        return False
 
 
 def upload_pdf_to_oss(obj_key, pdf_file):
@@ -73,6 +87,7 @@ def create_pdf_task(obj_id):
         proc = LocalPdfClient.FenyinPdfProcess(
             os.path.join(Settings.Pdf_Path["source"], obj_id + ".pdf"),
             os.path.join(Settings.Pdf_Path["transformed"], obj_id + ".pdf"),
+            os.path.join(Settings.Pdf_Path["toimg"], obj_id + ".png"),
             Settings.Pdf_Path["wtmkfile"])
         return proc
     except Exception, e:
@@ -142,56 +157,21 @@ def WorkerThread():
             continue
 
         # handle engine
-        res = handle_pdf_process(proc_pdf)
+        res_pdf, res_img = handle_pdf_process(proc_pdf)
 
         # upload file to oss
         # upload_to_oss(jobj["key"], res)
-        if res is not None:
-            upload_pdf_to_oss(jobj["key"], res)
+        if res_pdf is not None:
+            upload_pdf_to_oss(jobj["key"], res_pdf)
+
+        if res_img is not None:
+            upload_img_to_oss(jobj["key"], res_img)
 
         # delete mqs msg
         _mqsClient.MQS_DeleteMsg()
 
         # task ended
         print "<<<<<<<<<<<<<<<<<"
-
-
-def daemonize():
-    cwd = os.getcwd()
-
-    try:
-        pid = os.fork()
-        if pid > 0:  # father thread exit
-            sys.exit(0)
-    except OSError, e:
-        sys.stderr.write("fork #1 failed: %d (%s)\n" % (e.errno, e.strerror))
-        sys.exit(1)
-
-    # decoup from parent environment
-    os.chdir(cwd)
-    os.setsid()
-    os.umask(0)
-
-    try:
-        pid = os.fork()
-        if pid > 0:  # father thread exit
-            sys.exit(0)
-    except OSError, e:
-        sys.stderr.write("fork #2 failed: %d (%s)\n" % (e.errno, e.strerror))
-        sys.exit(1)
-
-    # redirect standard file descriptors
-    sys.stdout.flush()
-    sys.stderr.flush()
-    si = file("/dev/null", "r")
-    so = file("/dev/null", "w")
-    se = file("/dev/null", "w")
-    os.dup2(si.fileno(), sys.stdin.fileno())
-    os.dup2(so.fileno(), sys.stdout.fileno())
-    os.dup2(se.fileno(), sys.stderr.fileno())
-
-    # write pid file
-    main()
 
 
 def main():
@@ -224,5 +204,11 @@ if __name__ == "__main__":
         main()
     else:
         print "***BACK****"
-        daemonize()
+        if sys.argv[1].upper() == "START":
+            MyDeamon.daemonize(Settings.PidPath + RandomHelper.gen_num_key(5) + ".pid", main)
+        elif sys.argv[1].upper() == "STOP":
+            MyDeamon.del_all_pids(Settings.PidPath)
+        else:
+            print "You have only [start|stop] to run."
+
 

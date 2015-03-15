@@ -22,6 +22,7 @@ def __create_path_re(path_to_create):
         else:
             os.mkdir(cur_path)
 
+
 # create the path we needed
 def __check_create_path():
     try:
@@ -32,10 +33,13 @@ def __check_create_path():
         __create_path_re(Pdf_Path["transformed"])
         __create_path_re(Pdf_Path["toimg"])
         # log path
-        __create_path_re(os.path.dirname(LogPath))
+        __create_path_re(os.path.dirname(LogFile))
+        # pid path
+        __create_path_re(PidPath)
     except Exception, ex:
         print "create path failed!\n>>>>"
         print ex, "\n<<<<"
+
 
 # check the network is connected?
 def __check_network_connect():
@@ -54,7 +58,7 @@ def __check_network_connect():
 
 # read the config file and check if system is ready to run
 def _readconfigfiles(config_file="config.json"):
-    global AccessId, AccessKey, OSSFrom, OSSTo, MQS, LogPath, tbl_length, Pdf_Path, Tmp_Path, Msg_Format
+    global AccessId, AccessKey, OSSFrom, OSSTo, MQS, LogFile, tbl_length, Pdf_Path, Tmp_Path, Msg_Format, PidPath
     if not os.path.isfile(config_file):
         raise Exception(
             "File not found!(" + os.path.abspath(os.path.curdir) + " , " + config_file + " }")
@@ -67,7 +71,8 @@ def _readconfigfiles(config_file="config.json"):
         OSSTo = jsobj["OSSTo"]
         OSSFrom = jsobj["OSSFrom"]
         MQS = jsobj["MQS"]
-        LogPath = jsobj["LogPath"]
+        LogFile = jsobj["LogFile"]
+        PidPath = jsobj["PidPath"]
         tbl_length = int(jsobj["tbl_length"])
         Tmp_Path = jsobj["Tmp_Path"]
         Pdf_Path = jsobj["Pdf_Path"]
@@ -86,11 +91,11 @@ def _readconfigfiles(config_file="config.json"):
 
 
 def _initialize_fenyin_log():
-    global LogPath
+    global LogFile
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                         datefmt='%d %b %Y %H:%M:%S',
-                        filename=LogPath,
+                        filename=LogFile,
                         filemode='w')
 
 

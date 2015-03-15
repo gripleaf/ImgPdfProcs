@@ -9,45 +9,26 @@ from FenyinGlobals import Settings
 
 
 class FenyinPdfProcess:
-    def __init__(self, pdffile, outfile, wtmkfile):
+    def __init__(self, pdffile, outfile, outimg, wtmkfile):
         if not pdffile.endswith(".pdf"):
             raise Exception(
                 "create task error! pdf file name is not correct format(*.pdf)")
         self.pdffile = pdffile
         self.outfile = outfile
+        self.imgpath = outimg
         self.wtmkfile = wtmkfile
         self.script_path = os.path.join(os.path.dirname(os.path.abspath("__file__")), "FenyinClients", "watermark.jar")
 
-    def __add_water_mark(self):
-        '''add watermark on pdf file
-            :return: file of path -> success | None -> fail
-        '''
-        # java -jar XX.jar in_pdf_file watermark_image out_pdf_file
-        res = subprocess.call(
-            "java -jar %s %s %s %s > /dev/null" % (self.script_path, self.pdffile, self.wtmkfile, self.outfile),
-            shell=True)
-        if res == 0:
-            return self.outfile
-        return None
 
     def process_pdf(self):
         '''
             :return: file of path -> success | None -> fail
         '''
         print "process", self.pdffile, "..."
-        return self.__add_water_mark()
-
-    def __create_path_re(self, path_to_create):
-        cur_path = ""
-        for pp in path_to_create.split(os.path.sep):
-            if pp == "":
-                cur_path = "/"
-                continue
-            cur_path = os.path.join(cur_path, pp)
-            if os.path.isdir(cur_path):
-                continue
-            else:
-                os.mkdir(cur_path)
+        res = self.__add_water_mark()
+        if res == None:
+            return res, None
+        return res, self.__gen_homepage_img()
 
     def convert_to_image(self, img_path):
         if img_path is None:
@@ -65,9 +46,40 @@ class FenyinPdfProcess:
         img_list = os.listdir(img_path)
         return [os.path.join(img_path, file_name) for file_name in img_list]
 
-    def mogrify_image(self, img_path):
-        pass
+    def __gen_homepage_img(self):
+        '''generate a image(png) of the first page of pdf
+        :return:image path
+        '''
+        _cmd = "convert -density 50 " + self.pdffile + "\\[0\\] " + self.imgpath
 
+        res = subprocess.call(_cmd, shell=True)
+        if res == 0:
+            return self.imgpath
+        return None
+
+    def __add_water_mark(self):
+        '''add watermark on pdf file
+            :return: file of path -> success | None -> fail
+        '''
+        # java -jar XX.jar in_pdf_file watermark_image out_pdf_file
+        res = subprocess.call(
+            "java -jar %s %s %s %s > /dev/null" % (self.script_path, self.pdffile, self.wtmkfile, self.outfile),
+            shell=True)
+        if res == 0:
+            return self.outfile
+        return None
+
+    def __create_path_re(self, path_to_create):
+        cur_path = ""
+        for pp in path_to_create.split(os.path.sep):
+            if pp == "":
+                cur_path = "/"
+                continue
+            cur_path = os.path.join(cur_path, pp)
+            if os.path.isdir(cur_path):
+                continue
+            else:
+                os.mkdir(cur_path)
 
     def __translate_words_for_add(self, words):
         if os.path.exists(words):

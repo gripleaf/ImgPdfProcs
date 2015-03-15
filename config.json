@@ -14,7 +14,8 @@
     "ServerName": "http://eq6io89s97.mqs-cn-hangzhou.aliyuncs.com",
     "QueueName": "fpt-tbl"
   },
-  "LogPath": "tmp/mylog.log",
+  "LogFile": "tmp/mylog.log",
+  "PidPath": "tmp/pid/",
   "tbl_length": 3,
   "Tmp_Path": "tmp/",
   "Pdf_Path": {
