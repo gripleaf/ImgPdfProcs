@@ -116,7 +116,7 @@ def WorkerThread():
         # get task
         msg_recv = _mqsClient.MQS_ReceiveMsg()
         if not hasattr(msg_recv, "message_body"):
-            time.sleep(1)
+            time.sleep(1.5)
             continue
 
         try:
