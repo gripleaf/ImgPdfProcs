@@ -146,10 +146,14 @@ def WorkerThread():
             print "load json failed", e.message
 
         # check file on oss
-        res = check_file_on_oss(jobj['key'])
+        res = check_file_on_oss(jobj['key'] + "-tbl")
+        res = res and check_file_on_oss(jobj['key'] + "-img0")
 
         # if file on oss, then delete msg
         if res == True:
+            # if jobj has key callback, then call it.
+            if jobj.has_key("callback"):
+                handle_callback(jobj["callback"])
             # delete mqs msg
             _mqsClient.MQS_DeleteMsg()
             continue
