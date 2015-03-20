@@ -146,8 +146,7 @@ def WorkerThread():
             print "load json failed", e.message
 
         # check file on oss
-        res = check_file_on_oss(jobj['key'] + "-tbl")
-        res = res and check_file_on_oss(jobj['key'] + "-img0")
+        res = check_file_on_oss(jobj['key'] + "-tbl") and check_file_on_oss(jobj['key'] + "-img0")
 
         # if file on oss, then delete msg
         if res == True:
