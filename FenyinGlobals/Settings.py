@@ -92,11 +92,16 @@ def _readconfigfiles(config_file="config.json"):
 
 def _initialize_fenyin_log():
     global LogFile
-    logging.basicConfig(level=logging.DEBUG,
+    logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                         datefmt='%d %b %Y %H:%M:%S',
                         filename=LogFile,
                         filemode='w')
+
+    # add a handle for writing message on console
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    logging.getLogger('').addHandler(ch)
 
 
 def InitOnce():

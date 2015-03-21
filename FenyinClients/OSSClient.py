@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import time
+import logging
 
 try:
     from OSS_Python_API.oss.oss_api import *
@@ -37,7 +38,7 @@ class FenyinOSSClient:
             except Exception, e:
                 self.Expire_Time = None
 
-        print self.HOST_TO, self.BUCKET_TO
+        logging.info("%s %s" % (self.HOST_TO, self.BUCKET_TO))
 
 
     def download_file_from_oss(self, object="object_test", filename="object"):
@@ -62,13 +63,13 @@ class FenyinOSSClient:
                 res = self.__oss_from.get_object_to_file(
                     self.BUCKET_FROM, object, filename, headers)
                 if (res.status / 100) == 2:
-                    print "vvv get", filename, "OK vvv"
+                    logging.info("vvv get %s OK vvv" % filename)
                     return True
                 else:
-                    print "get", filename, "ERROR"
+                    logging.warning("get %s ERROR" % filename)
                     continue
             except Exception, e:
-                print "download failed... retry", i, "... errorvvv", e.message, "vvv"
+                logging.error("download failed... retry %s ... error vvv %s vvv" % (i, e.message))
         return False
 
 
@@ -80,20 +81,20 @@ class FenyinOSSClient:
         '''
         # upload the file to a buketƒ√
 
-        print "uploading", filename, "to", object
+        logging.info("uploading %s to %s" % (filename, object))
         for i in range(3):
             try:
                 res = self.__oss_to.put_object_from_file(
                     self.BUCKET_TO, object, filename)
 
                 if (res.status / 100) == 2:
-                    print "^^^ put", filename, " OK ^^^"
+                    logging.info("^^^ put %s OK ^^^" % filename)
                     return True
                 else:
-                    print "^^^ put", filename, "ERROR ^^^"
+                    logging.warning("^^^ put %s ERROR ^^^" % filename)
                     continue
             except Exception, e:
-                print "upload failed... retry", i, "... error^^^", e.message, "^^^"
+                logging.error("upload failed... retry %s ... error^^^ %s ^^^" % (i, e.message))
         return False
 
 
@@ -117,7 +118,7 @@ class FenyinOSSClient:
         try:
             return datetime.datetime(int(gpart[3]), mon, int(gpart[1]), hour, mins, sec)
         except Exception, ex:
-            print ex
+            logging.error(ex.message)
             return None
 
     def check_file_on_oss(self, file_key):
@@ -134,7 +135,7 @@ class FenyinOSSClient:
             else:
                 return False
         except Exception, e:
-            print "checking error: ", e.message
+            logging.warning("checking error: %s" % e.message)
             return e.message
 
 

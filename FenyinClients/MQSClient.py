@@ -22,7 +22,7 @@ class FenyinMQSClient:
 
                 self.__lock.release()
 
-                print "Receive Message Succeed!", "message_body is %s" % self.recv_msg.message_body
+                logging.info("Receive Message Succeed! message_body is %s" % self.recv_msg.message_body)
                 # print "message_id is %s" % self.recv_msg.message_id
                 # print "message_body_md5 is %s" %
                 # self.recv_msg.message_body_md5
@@ -36,7 +36,7 @@ class FenyinMQSClient:
             except MQSExceptionBase, e:
                 self.__lock.release()
                 time.sleep(1)
-        print "Receive Message Fail:", e
+        logging.warning("Receive Message Fail: %s" % e.message)
         return None
 
     def MQS_RenewMsg(self):
@@ -55,10 +55,13 @@ class FenyinMQSClient:
                 self.recv_msg.receipt_handle = change_msg_vis.receipt_handle
 
                 self.__lock.release()
-                print "Change Message Visibility Succeed!", "receipt_handle is %s" % change_msg_vis.receipt_handle, "next_visible_time is %s" % change_msg_vis.next_visible_time
+                logging.info(
+                    "Change Message Visibility Succeed! receipt_handle is %s next_visible_time is %s" % (
+                        change_msg_vis.receipt_handle,
+                        change_msg_vis.next_visible_time))
                 break
             except MQSExceptionBase, e:
-                print "Change Message Visibility Fail:", e
+                logging.warning("Change Message Visibility Fail: %s" % e.message)
             except AttributeError, ae:
                 break
                 # sys.exit(1)
@@ -75,11 +78,11 @@ class FenyinMQSClient:
 
                 self.__lock.release()
 
-                print "Delete Message Succeed."
+                logging.info("Delete Message Succeed.")
                 break
             except MQSExceptionBase, e:
                 self.__lock.release()
-                print "Delete Message Fail:", e
+                logging.warning("Delete Message Fail: %s" % e.message)
 
                 # sys.exit(1)
 

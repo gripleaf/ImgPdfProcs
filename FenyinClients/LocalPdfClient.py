@@ -3,6 +3,7 @@
 import subprocess
 import os
 import sys
+import logging
 # sys.path.append("..")
 from FenyinGlobals import Settings
 # sys.path.remove("..")
@@ -24,7 +25,7 @@ class FenyinPdfProcess:
         '''
             :return: file of path -> success | None -> fail
         '''
-        print "process", self.pdffile, "..."
+        logging.info("process %s..." % self.pdffile)
         res = self.__add_water_mark()
         if res == None:
             return res, None
@@ -40,7 +41,7 @@ class FenyinPdfProcess:
         _cmd = "convert -density 200 -colorspace Gray " + self.outfile + " -transparent \"#ffffff\" " + \
                os.path.join(img_path, os.path.basename(self.pdffile).replace(".pdf", ".png"))
 
-        print _cmd
+        logging.info("running$ %s" % _cmd)
         subprocess.call(_cmd, shell=True)
         # calc img list
         img_list = os.listdir(img_path)
@@ -110,7 +111,7 @@ class FenyinPdfProcess:
             _cmd = ' '.join(
                 ['mogrify -pointsize ', size, ' -fill black -weight bolder -gravity southeast -annotate',
                  ''.join(['+', position[0], '+', position[1]]), words, img_path])
-        print "add word:", _cmd
+        logging.info("add word: %s" % _cmd)
         subprocess.call(_cmd, shell=True)
 
 
@@ -122,7 +123,7 @@ class FenyinPdfProcess:
 
         _cmd = ' '.join(["convert", img_path, logo, "-gravity southeast -geometry",
                          ''.join(['+', position[0], '+', position[1]]), "-composite", img_path])
-        print "add logo:", _cmd
+        logging.info("add logo: %s" % _cmd)
         subprocess.call(_cmd, shell=True)
 
 

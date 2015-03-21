@@ -33,7 +33,7 @@ def upload_img_to_oss(obj_key, img_file):
         img_key = obj_key + "-img0"
         return _ossClient.upload_file_to_oss(img_key, img_file)
     except Exception, e:
-        print "[upload img file to oss]", e.message
+        logging.warning("[upload img file to oss] %s" % e.message)
         return False
 
 
@@ -47,7 +47,7 @@ def upload_pdf_to_oss(obj_key, pdf_file):
         pdf_key = obj_key + "-tbl"
         return _ossClient.upload_file_to_oss(pdf_key, pdf_file)
     except Exception, e:
-        print "[upload pdf to oss]", e.message
+        logging.warning("[upload pdf to oss] %s" % e.message)
         return False
 
 
@@ -62,7 +62,7 @@ def download_from_oss(obj_key, obj_id):
         return _ossClient.download_file_from_oss(
             obj_key, os.path.join(Settings.Pdf_Path["source"], obj_id + ".pdf"))
     except Exception, ex:
-        print "[download from oss]", ex.message
+        logging.warning("[download from oss] %s" % ex.message)
         return False
 
 
@@ -75,7 +75,7 @@ def check_file_on_oss(obj_key):
     try:
         return _ossClient.check_file_on_oss(obj_key)
     except Exception, ex:
-        print "[check file on oss]", ex.message
+        logging.warning("[check file on oss] %s" % ex.message)
         return False
 
 
@@ -92,6 +92,7 @@ def create_pdf_task(obj_id):
             Settings.Pdf_Path["wtmkfile"])
         return proc
     except Exception, e:
+        logging.warning("[create pdf task] %s" % e.message)
         return None
 
 
@@ -105,7 +106,7 @@ def handle_pdf_process(proc_pdf):
         return proc_pdf.process_pdf()
         # return proc_pdf.convert_to_image(Settings.Pdf_Path["toimg"])
     except Exception, e:
-        print "[handle pdf process]", e.message
+        logging.warning("[handle pdf process] %s" % e.message)
         return None
 
 
@@ -117,10 +118,10 @@ def handle_callback(url_cb):
     if url_cb is None or url_cb == "":
         return True
     try:
-        print urllib.urlopen(url_cb).read()
+        logging.info(urllib.urlopen(url_cb).read())
         return True
     except Exception, ex:
-        print ex.message
+        logging.warning("[handle callback] %s" % ex.message)
         return False
 
 
@@ -128,7 +129,7 @@ def WorkerThread():
     while True:
 
         # task beginning
-        print "\n>>>>>>>>>>>>>>>>>"
+        logging.info(">>>>>>>>>>>>>>>>>")
         # get task
         msg_recv = _mqsClient.MQS_ReceiveMsg()
         if not hasattr(msg_recv, "message_body"):
@@ -143,7 +144,7 @@ def WorkerThread():
                     raise ValueError("necessary key lack like " + ite)
 
         except Exception, e:
-            print "load json failed", e.message
+            logging.error("load json failed %s" % e.message)
 
         # check file on oss
         res = check_file_on_oss(jobj['key'] + "-tbl") and check_file_on_oss(jobj['key'] + "-img0")
@@ -193,7 +194,7 @@ def WorkerThread():
         _mqsClient.MQS_DeleteMsg()
 
         # task ended
-        print "<<<<<<<<<<<<<<<<<"
+        logging.info("<<<<<<<<<<<<<<<<<")
 
 
 def main():
@@ -215,22 +216,22 @@ def main():
                 target=WorkerThread, args=(), name="WorkerThread " + time.strftime("%m%d%H-%M-%S"))
             wh.setDaemon(True)
             wh.start()
-            print "Thread ", wh.name, "start!"
+            logging.warning("Thread %s start!" % wh.name)
             continue
         _mqsClient.MQS_RenewMsg()
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print "****FRONT****"
+        logging.info("****FRONT****")
         main()
     else:
-        print "***BACK****"
+        logging.info("***BACK****")
         if sys.argv[1].upper() == "START":
             MyDeamon.daemonize(Settings.PidPath + RandomHelper.gen_num_key(5) + ".pid", main)
         elif sys.argv[1].upper() == "STOP":
             MyDeamon.del_all_pids(Settings.PidPath)
         else:
-            print "You have only [start|stop] to run."
+            logging.warning("You have only [start|stop] to run.")
 
 
