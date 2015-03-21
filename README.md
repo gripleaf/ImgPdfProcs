@@ -1,12 +1,12 @@
 # ReadMe
 
-#### initialize the environment of server
+#### Initialize The Environment Of Server
 
 - sudo apt-get install imagemagick
 - sudo apt-get install python (you must choose pyhton 2.7)
 - sudo easy_install reportlab
 
-#### how to run it
+#### How To Run It
 you have to choices to run it.
 first, run it on foreground.
 ```shell
@@ -16,6 +16,12 @@ first, run it on foreground.
 second, run it on background
 ```shell
     sudo python Main.py start
+```
+by the way, you can run it by multily times.
+
+third, stop all of the process by run following shell
+```shell
+    sudo python Main.py stop
 ```
 
 ### How To Use It
