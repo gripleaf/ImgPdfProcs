@@ -14,9 +14,9 @@ import sys
 
 def upload_to_oss(obj_key, filelist):
     '''
-        :param obj_key: file key
-        :param filelist: files to upload
-        :return: None
+        @:param obj_key: file key
+        @:param filelist: files to upload
+        @:return: None
     '''
     for file_item in filelist:
         img_key = obj_key + os.path.basename(file_item).replace(".", "-")
@@ -25,9 +25,9 @@ def upload_to_oss(obj_key, filelist):
 
 def upload_img_to_oss(obj_key, img_file):
     '''
-    :param obj_key: file key before upload
-    :param img_file: image file path
-    :return: True -> success | False -> fail
+        @:param obj_key: file key before upload
+        @:param img_file: image file path
+        @:return: True -> success | False -> fail
     '''
     try:
         img_key = obj_key + "-img0"
@@ -39,9 +39,9 @@ def upload_img_to_oss(obj_key, img_file):
 
 def upload_pdf_to_oss(obj_key, pdf_file):
     '''
-        :param obj_key: file key before upload
-        :param pdf_file: pdf file path
-        :return: True -> success | False -> fail
+        @:param obj_key: file key before upload
+        @:param pdf_file: pdf file path
+        @:return: True -> success | False -> fail
     '''
     try:
         pdf_key = obj_key + "-tbl"
@@ -81,8 +81,8 @@ def check_file_on_oss(obj_key):
 
 def create_pdf_task(obj_id):
     '''
-        :param obj_id: file id
-        :return: instance -> success | None -> fail
+        @:param obj_id: file id
+        @:return: instance -> success | None -> fail
     '''
     try:
         proc = LocalPdfClient.FenyinPdfProcess(
@@ -97,8 +97,8 @@ def create_pdf_task(obj_id):
 
 def handle_pdf_process(proc_pdf):
     '''
-        :param proc_pdf: instance of LocalPdfClient.FenyinPdfProcess
-        :return: string(file path) -> success | None -> fail
+        @:param proc_pdf: instance of LocalPdfClient.FenyinPdfProcess
+        @:return: string(file path) -> success | None -> fail
     '''
     try:
         # process file
@@ -111,8 +111,8 @@ def handle_pdf_process(proc_pdf):
 
 def handle_callback(url_cb):
     '''callback to finish the task
-    :param url_cb: the url of callback
-    :return: True -> success | False -> fail
+        @:param url_cb: the url of callback
+        @:return: True -> success | False -> fail
     '''
     if url_cb is None or url_cb == "":
         return True
