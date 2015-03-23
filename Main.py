@@ -4,6 +4,7 @@ import thread
 import threading
 from FenyinGlobals import Settings, MyDeamon, RandomHelper
 from FenyinClients import DBClient, MQSClient, OSSClient, LocalPdfClient
+from FenyinClients.FenyinDBClient import FenyinDBClient
 import time
 import os
 import json
@@ -125,6 +126,13 @@ def handle_callback(url_cb):
         return False
 
 
+def record_mqs_message(jobj):
+    try:
+        _sqlClient.set_mqs_message(jobj)
+    except Exception, ex:
+        logging.warning("[record mqs message] %s" % ex.message)
+
+
 def WorkerThread():
     while True:
 
@@ -157,6 +165,9 @@ def WorkerThread():
             # delete mqs msg
             _mqsClient.MQS_DeleteMsg()
             continue
+
+        # record all the message
+        record_mqs_message(jobj)
 
         # download file from oss
         res = download_from_oss(jobj["key"], jobj["id"])
@@ -198,9 +209,10 @@ def WorkerThread():
 
 
 def main():
-    global _ossClient, _mqsClient
+    global _ossClient, _mqsClient, _sqlClient
     _ossClient = OSSClient.FenyinOSSClient(Settings)
     _mqsClient = MQSClient.FenyinMQSClient(Settings)
+    _sqlClient = FenyinDBClient(Settings)
 
     # start the worker thread
 

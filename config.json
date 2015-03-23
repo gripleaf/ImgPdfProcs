@@ -24,6 +24,10 @@
     "toimg": "tmp/toimg",
     "wtmkfile": "resources/watermark.png"
   },
+  "Sqlite": {
+    "file": "tmp/sqlite.db",
+    "log": "tmp/sqlite.log"
+  },
   "MySql": {
     "user": "root",
     "password": "password",

@@ -58,7 +58,7 @@ def __check_network_connect():
 
 # read the config file and check if system is ready to run
 def _readconfigfiles(config_file="config.json"):
-    global AccessId, AccessKey, OSSFrom, OSSTo, MQS, LogFile, tbl_length, Pdf_Path, Tmp_Path, Msg_Format, PidPath
+    global AccessId, AccessKey, OSSFrom, OSSTo, MQS, LogFile, tbl_length, Pdf_Path, Tmp_Path, Msg_Format, PidPath, Sqlite
     if not os.path.isfile(config_file):
         raise Exception(
             "File not found!(" + os.path.abspath(os.path.curdir) + " , " + config_file + " }")
@@ -76,6 +76,7 @@ def _readconfigfiles(config_file="config.json"):
         tbl_length = int(jsobj["tbl_length"])
         Tmp_Path = jsobj["Tmp_Path"]
         Pdf_Path = jsobj["Pdf_Path"]
+        Sqlite = jsobj["Sqlite"]  # not necessary for program
         if jsobj.has_key("Msg_Format"):
             Msg_Format = jsobj["Msg_Format"]
         else:
