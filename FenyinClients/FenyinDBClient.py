@@ -107,6 +107,24 @@ class SqliteClient:
         finally:
             self.__lock.release()
 
+    def del_cols_db(self, tb_name, cons=[]):
+        '''
+            @:param tb_name: the name of table
+            @:param cons: the list of conditions after where
+            @:return: none
+        '''
+        _query = "delete from %s where %s" % (tb_name, 'and'.join(cons.append(1)))
+
+        logging.info("(DELETE)$ %s" % _query)
+        try:
+            self.__lock.acquire()
+            self.__cursor.execute(_query)
+            self.__conn.commit()
+        except Exception, ex:
+            logging.warning("!DELETE!$: %s -> %s" % (_query, ex.message))
+        finally:
+            self.__lock.release()
+
 
 class FenyinDBClient:
     '''
@@ -159,6 +177,10 @@ class FenyinDBClient:
 
 
     def get_mqs_message(self, key):
-        pass
-
-
+        '''
+            get mqs message
+            @:param key: the key of file in mqs
+            @:return:
+        '''
+        self._db_ins.select_from_db('FenyinMqs', ['file_key', 'message', 'updated_at'], ["file_key='%s'" % key])
+        # TODO: return
