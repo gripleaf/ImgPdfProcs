@@ -80,12 +80,12 @@ class SqliteClient:
         try:
             self.__lock.acquire()
             _res = self.__cursor.execute(_query)
+            return _res.fetchall()
         except Exception, ex:
             logging.warning("!SELECT!$ %s -> %s" % (_query, ex.message))
             return []
         finally:
             self.__lock.release()
-        return _res
 
     def update_cols_db(self, tb_name, cols, vals, cons=[]):
         '''
@@ -178,9 +178,9 @@ class FenyinDBClient:
 
     def get_mqs_message(self, key):
         '''
-            get mqs message
+            get mqs messages
             @:param key: the key of file in mqs
             @:return:
         '''
-        self._db_ins.select_from_db('FenyinMqs', ['file_key', 'message', 'updated_at'], ["file_key='%s'" % key])
-        # TODO: return
+        return self._db_ins.select_from_db('FenyinMqs', ['message'], ["file_key='%s'" % key])
+
