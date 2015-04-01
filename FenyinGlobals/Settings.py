@@ -78,6 +78,8 @@ def _readconfigfiles(config_file="config.json"):
         Tmp_Path = jsobj["Tmp_Path"]
         Pdf_Path = jsobj["Pdf_Path"]
         Sqlite = jsobj["Sqlite"]  # not necessary for program
+        if Sqlite.has_key("log"):
+            Sqlite["log"] += str(os.getpid()) + ".log"
         if jsobj.has_key("Msg_Format"):
             Msg_Format = jsobj["Msg_Format"]
         else:
