@@ -55,7 +55,9 @@ class FenyinPdfProcess:
 
         res = subprocess.call(_cmd, shell=True)
         if res == 0:
+            logging.info("\t2)gen home image [success]!")
             return self.imgpath
+        logging.warning('\t2)gen home image [fail]!')
         return None
 
     def __add_water_mark(self):
@@ -67,7 +69,9 @@ class FenyinPdfProcess:
             "java -jar %s %s %s %s > /dev/null" % (self.script_path, self.pdffile, self.wtmkfile, self.outfile),
             shell=True)
         if res == 0:
+            logging.info("\t1)add watermark [success]!")
             return self.outfile
+        logging.warning("\t1)add watermark [fail]!")
         return None
 
     def __create_path_re(self, path_to_create):
