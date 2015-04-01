@@ -72,6 +72,7 @@ def _readconfigfiles(config_file="config.json"):
         OSSFrom = jsobj["OSSFrom"]
         MQS = jsobj["MQS"]
         LogFile = jsobj["LogFile"]
+        LogFile = LogFile + str(os.getpid()) + ".log"
         PidPath = jsobj["PidPath"]
         tbl_length = int(jsobj["tbl_length"])
         Tmp_Path = jsobj["Tmp_Path"]
