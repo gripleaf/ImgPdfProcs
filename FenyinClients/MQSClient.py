@@ -18,7 +18,7 @@ class FenyinMQSClient:
                 # we need to lock the process
                 self.__lock.acquire()
 
-                __receive_mqs_message()
+                self.__receive_mqs_message()
 
                 self.__lock.release()
 
