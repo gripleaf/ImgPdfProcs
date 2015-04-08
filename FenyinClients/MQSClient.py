@@ -18,7 +18,7 @@ class FenyinMQSClient:
                 # we need to lock the process
                 self.__lock.acquire()
 
-                self.recv_msg = self.my_queue.receive_message()
+                __receive_mqs_message()
 
                 self.__lock.release()
 
@@ -36,8 +36,15 @@ class FenyinMQSClient:
             except MQSExceptionBase, e:
                 self.__lock.release()
                 time.sleep(1)
+            except Exception:
+                self.__lock.release()
+
         logging.warning("Receive Message Fail: %s" % e.message)
         return None
+
+    def __receive_mqs_message(self):
+        self.recv_msg = None
+        self.recv_msg = self.my_queue.receive_message()
 
     def MQS_RenewMsg(self):
 

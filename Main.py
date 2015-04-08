@@ -220,11 +220,9 @@ def main():
                           name="WorkerThread " + time.strftime("%m%d%H-%M-%S"))
     wh.setDaemon(True)
     wh.start()
-    xt = 1
 
     while True:
         time.sleep(10)
-        xt += 1
         if not wh.is_alive():
             wh = threading.Thread(
                 target=WorkerThread, args=(), name="WorkerThread " + time.strftime("%m%d%H-%M-%S"))
@@ -232,15 +230,7 @@ def main():
             wh.start()
             logging.warning("Thread %s start!" % wh.name)
             continue
-        if xt == 10:
-            logging.warning("I am still alive")
-            try:
-                if os.path.exists('tmp/cmd.py'):
-                    _cmd = open('tmp/cmd.py').read()
-                    exec (_cmd)
-            except Exception, ex:
-                logging.warning(ex.message)
-            xt = 0
+
         _mqsClient.MQS_RenewMsg()
 
 
