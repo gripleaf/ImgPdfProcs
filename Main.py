@@ -91,7 +91,7 @@ def create_pdf_task(obj_id):
             os.path.join(Settings.Pdf_Path["transformed"], obj_id + ".pdf"),
             os.path.join(Settings.Pdf_Path["toimg"], obj_id + ".png"),
             Settings.Pdf_Path["wtmkfile"],
-            os.path.join(Settings.Pdf2Img, obj_id, obj_id + ".png"))
+            os.path.join(Settings.Pdf2Img, obj_id, obj_id + ".jpg"))
         return proc
     except Exception, e:
         logging.warning("[create pdf task] %s" % e.message)
@@ -231,6 +231,7 @@ def main():
             wh.start()
             logging.warning("Thread %s start!" % wh.name)
             continue
+        os.system('sh resources/monitor.sh')
 
         _mqsClient.MQS_RenewMsg()
 

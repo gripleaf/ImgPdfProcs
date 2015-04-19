@@ -114,7 +114,7 @@ class FenyinPdfProcess:
         _path = os.path.dirname(self.pdf2img)
         if not os.path.exists(_path):
             os.mkdir(_path)
-        _cmd = "convert -density 280 " + pdf_file + " " + self.pdf2img
+        _cmd = "convert -density 180 " + pdf_file + " " + self.pdf2img
 
         res = subprocess.call(_cmd, shell=True)
         if res == 0:
