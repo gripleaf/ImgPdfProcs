@@ -36,6 +36,8 @@ def __check_create_path():
         __create_path_re(os.path.dirname(LogFile))
         # pid path
         __create_path_re(PidPath)
+        # pdf -> image path
+        __create_path_re(Pdf2Img)
     except Exception, ex:
         print "create path failed!\n>>>>"
         print ex, "\n<<<<"
@@ -58,7 +60,7 @@ def __check_network_connect():
 
 # read the config file and check if system is ready to run
 def _readconfigfiles(config_file="config.json"):
-    global AccessId, AccessKey, OSSFrom, OSSTo, MQS, LogFile, tbl_length, Pdf_Path, Tmp_Path, Msg_Format, PidPath, Sqlite
+    global AccessId, AccessKey, OSSFrom, OSSTo, MQS, LogFile, tbl_length, Pdf_Path, Tmp_Path, Msg_Format, PidPath, Sqlite, Pdf2Img
     if not os.path.isfile(config_file):
         raise Exception(
             "File not found!(" + os.path.abspath(os.path.curdir) + " , " + config_file + " }")
@@ -77,6 +79,7 @@ def _readconfigfiles(config_file="config.json"):
         tbl_length = int(jsobj["tbl_length"])
         Tmp_Path = jsobj["Tmp_Path"]
         Pdf_Path = jsobj["Pdf_Path"]
+        Pdf2Img = jsobj["Pdf2Img"]
         Sqlite = jsobj["Sqlite"]  # not necessary for program
         if Sqlite.has_key("log"):
             Sqlite["log"] += str(os.getpid()) + ".log"

@@ -10,7 +10,7 @@ from FenyinGlobals import Settings
 
 
 class FenyinPdfProcess:
-    def __init__(self, pdffile, outfile, outimg, wtmkfile):
+    def __init__(self, pdffile, outfile, outimg, wtmkfile, pdf2img):
         if not pdffile.endswith(".pdf"):
             raise Exception(
                 "create task error! pdf file name is not correct format(*.pdf)")
@@ -18,6 +18,7 @@ class FenyinPdfProcess:
         self.outfile = outfile
         self.imgpath = outimg
         self.wtmkfile = wtmkfile
+        self.pdf2img = pdf2img
         self.script_path = os.path.join(os.path.dirname(os.path.abspath("__file__")), "FenyinClients", "watermark.jar")
 
 
@@ -26,9 +27,25 @@ class FenyinPdfProcess:
             :return: file of path -> success | None -> fail
         '''
         logging.info("process %s..." % self.pdffile)
+        # add watermark to pdf
         res = self.__add_water_mark()
+
         if res == None:
+            return None, None
+
+        # convert pdf -> images
+        res = self.__convert_pdf_image(res)
+
+        if res == None:
+            return None, None
+
+        # convert images -> pdf
+        res = self.__convert_btw_pdfimg(res)
+
+        if res == None:
+            logging.info("\t1)add watermark [failed]!")
             return res, None
+        logging.warning("\t1)add watermark [success]!")
         return res, self.__gen_homepage_img()
 
     def convert_to_image(self, img_path):
@@ -66,13 +83,46 @@ class FenyinPdfProcess:
         '''
         # java -jar XX.jar in_pdf_file watermark_image out_pdf_file
         res = subprocess.call(
-            "java -jar %s %s %s %s > /dev/null" % (self.script_path, self.pdffile, self.wtmkfile, self.outfile),
+            "java -jar %s Add %s %s %s > /dev/null" % (self.script_path, self.pdffile, self.wtmkfile, self.outfile),
             shell=True)
+
         if res == 0:
-            logging.info("\t1)add watermark [success]!")
+            logging.info("\t\tadd pdf image [success]!")
             return self.outfile
-        logging.warning("\t1)add watermark [fail]!")
+        logging.warning("\t\tadd pdf image [fail]!")
         return None
+
+    def __convert_btw_pdfimg(self, imgs_path):
+        ''' convert images to pdf
+        :param imgs_path:
+        :return: pdf file
+        '''
+        _cmd = "java -jar %s Convert %s %s _ > /dev/null" % (self.script_path, imgs_path, self.outfile)
+
+        res = subprocess.call(_cmd, shell=True)
+        if res == 0:
+            logging.info("\t\tconvert images -> pdf [success]!")
+            return self.outfile
+        logging.warning("\t\tconvert images -> pdf [failed]!")
+        return None
+
+
+    def __convert_pdf_image(self, pdf_file):
+        '''generate a image(png) of all the pdf
+        :return:images path
+        '''
+        _path = os.path.dirname(self.pdf2img)
+        if not os.path.exists(_path):
+            os.mkdir(_path)
+        _cmd = "convert -density 280 " + pdf_file + " " + self.pdf2img
+
+        res = subprocess.call(_cmd, shell=True)
+        if res == 0:
+            logging.info("\t\t convert pdf -> images [success]!")
+            return _path
+        logging.warning("\t\t convert pdf -> images [failed]!")
+        return None
+
 
     def __create_path_re(self, path_to_create):
         cur_path = ""
