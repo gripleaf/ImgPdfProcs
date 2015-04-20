@@ -223,7 +223,9 @@ def main():
     wh.start()
 
     while True:
-        time.sleep(10)
+        for i in range(10):
+            time.sleep(1)
+            os.system('sh resources/monitor.sh')
         if not wh.is_alive():
             wh = threading.Thread(
                 target=WorkerThread, args=(), name="WorkerThread " + time.strftime("%m%d%H-%M-%S"))
@@ -231,7 +233,6 @@ def main():
             wh.start()
             logging.warning("Thread %s start!" % wh.name)
             continue
-        os.system('sh resources/monitor.sh')
 
         _mqsClient.MQS_RenewMsg()
 
