@@ -7,7 +7,7 @@ for pid in $pids
 do
     mem=$(echo $pid | cut -d ' ' -f2);
     pd=$(echo $pid | cut -d ' ' -f1);
-    if test mem -ge 1094888
+    if test $mem -ge 1094888
     then
         kill -9 $pd;
     fi

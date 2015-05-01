@@ -3,7 +3,7 @@
 import thread
 import threading
 from FenyinGlobals import Settings, MyDeamon, RandomHelper
-from FenyinClients import DBClient, MQSClient, OSSClient, LocalPdfClient
+from FenyinClients import MQSClient, OSSClient, LocalPdfClient
 from FenyinClients.FenyinDBClient import FenyinDBClient
 import time
 import os
@@ -223,9 +223,8 @@ def main():
     wh.start()
 
     while True:
-        for i in range(10):
-            time.sleep(1)
-            os.system('sh resources/monitor.sh')
+        time.sleep(10)
+        #os.system('sh resources/monitor.sh')
         if not wh.is_alive():
             wh = threading.Thread(
                 target=WorkerThread, args=(), name="WorkerThread " + time.strftime("%m%d%H-%M-%S"))

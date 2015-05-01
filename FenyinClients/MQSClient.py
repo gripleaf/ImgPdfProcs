@@ -7,7 +7,7 @@ from MQS_Python_SDK.queue import *
 import logging
 import threading
 import time
-
+import base64
 
 class FenyinMQSClient:
     def MQS_ReceiveMsg(self):
@@ -22,6 +22,7 @@ class FenyinMQSClient:
 
                 self.__lock.release()
 
+                #self.recv_msg.message_body = base64.b64encode(self.recv_msg.message_body)
                 logging.info("Receive Message Succeed! message_body is %s" % self.recv_msg.message_body)
                 # print "message_id is %s" % self.recv_msg.message_id
                 # print "message_body_md5 is %s" %
@@ -34,16 +35,17 @@ class FenyinMQSClient:
                 # print "receipt_handle is %s" % self.recv_msg.receipt_handle
                 return self.recv_msg
             except MQSExceptionBase, e:
-                self.__lock.release()
                 time.sleep(1)
             except Exception:
-                self.__lock.release()
+                pass
+            finally:
+                if self.__lock.locked():
+                    self.__lock.release()
 
         logging.warning("Receive Message Fail: %s" % e.message)
         return None
 
     def __receive_mqs_message(self):
-        self.recv_msg = None
         self.recv_msg = self.my_queue.receive_message()
 
     def MQS_RenewMsg(self):
@@ -72,6 +74,9 @@ class FenyinMQSClient:
             except AttributeError, ae:
                 break
                 # sys.exit(1)
+            finally:
+                if self.__lock.locked():
+                    self.__lock.release()
 
     def MQS_DeleteMsg(self):
         # delete message
@@ -90,6 +95,9 @@ class FenyinMQSClient:
             except MQSExceptionBase, e:
                 self.__lock.release()
                 logging.warning("Delete Message Fail: %s" % e.message)
+            finally:
+                if self.__lock.locked():
+                    self.__lock.release()
 
                 # sys.exit(1)
 
