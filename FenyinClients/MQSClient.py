@@ -42,6 +42,7 @@ class FenyinMQSClient:
                 if self.__lock.locked():
                     self.__lock.release()
 
+        self.recv_msg = None
         logging.warning("Receive Message Fail: %s" % e.message)
         return None
 

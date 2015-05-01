@@ -160,6 +160,7 @@ def WorkerThread():
 
         # if file on oss, then delete msg
         if res == True:
+            logging.info("&&files has already on oss&&")
             # if jobj has key callback, then call it.
             if jobj.has_key("callback"):
                 handle_callback(jobj["callback"])
@@ -224,7 +225,7 @@ def main():
 
     while True:
         time.sleep(10)
-        #os.system('sh resources/monitor.sh')
+        # os.system('sh resources/monitor.sh')
         if not wh.is_alive():
             wh = threading.Thread(
                 target=WorkerThread, args=(), name="WorkerThread " + time.strftime("%m%d%H-%M-%S"))
