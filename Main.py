@@ -91,7 +91,7 @@ def create_pdf_task(obj_id):
             os.path.join(Settings.Pdf_Path["transformed"], obj_id + ".pdf"),
             os.path.join(Settings.Pdf_Path["toimg"], obj_id + ".png"),
             Settings.Pdf_Path["wtmkfile"],
-            os.path.join(Settings.Pdf2Img, obj_id, obj_id + ".jpg"))
+            os.path.join(Settings.Pdf2Img, obj_id, obj_id))
         return proc
     except Exception, e:
         logging.warning("[create pdf task] %s" % e.message)
