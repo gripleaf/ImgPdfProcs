@@ -55,8 +55,11 @@ class FenyinPdfProcess:
             img_path, os.path.basename(self.pdffile).replace(".pdf", ""))
         self.__create_path_re(img_path)
 
-        _cmd = "convert -density 200 -colorspace Gray " + self.outfile + " -transparent \"#ffffff\" " + \
-               os.path.join(img_path, os.path.basename(self.pdffile).replace(".pdf", ".png"))
+        # _cmd = "convert -density 200 -colorspace Gray " + self.outfile + " -transparent \"#ffffff\" " + \
+        #       os.path.join(img_path, os.path.basename(self.pdffile).replace(".pdf", ".png"))
+
+        _cmd = "sh resources/conImg.sh %s %s" % (
+        self.outfile, os.path.join(img_path, os.path.basename(self.pdffile).replace(".pdf", "")))
 
         logging.info("running$ %s" % _cmd)
         subprocess.call(_cmd, shell=True)

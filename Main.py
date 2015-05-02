@@ -128,10 +128,24 @@ def handle_callback(url_cb):
 
 
 def record_mqs_message(jobj):
+    ''' record mqs message into sqlite db
+    :param jobj: message dict
+    :return:
+    '''
     try:
         _sqlClient.set_mqs_message(jobj)
     except Exception, ex:
         logging.warning("[record mqs message] %s" % ex.message)
+
+
+def check_task_security(jobj):
+    ''' check current task is security to do
+    :param jobj: message dict
+    :return: True -> security, False -> dangerous
+    '''
+    if os.path.isfile(os.path.join(Settings.Pdf_Path["source"], jobj["id"] + ".pdf")):
+        return False
+    return True
 
 
 def WorkerThread():
@@ -170,6 +184,14 @@ def WorkerThread():
 
         # record all the message
         record_mqs_message(jobj)
+
+        # security check
+        res = check_task_security(jobj)
+
+        # if not safe enough to handle the task
+        if not res:
+            logging.info("!!!Not Safe Enough to process!!!")
+            return
 
         # download file from oss
         res = download_from_oss(jobj["key"], jobj["id"])

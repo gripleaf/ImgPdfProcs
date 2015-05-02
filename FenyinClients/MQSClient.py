@@ -9,6 +9,7 @@ import threading
 import time
 import base64
 
+
 class FenyinMQSClient:
     def MQS_ReceiveMsg(self):
 
@@ -22,7 +23,7 @@ class FenyinMQSClient:
 
                 self.__lock.release()
 
-                #self.recv_msg.message_body = base64.b64encode(self.recv_msg.message_body)
+                # self.recv_msg.message_body = base64.b64encode(self.recv_msg.message_body)
                 logging.info("Receive Message Succeed! message_body is %s" % self.recv_msg.message_body)
                 # print "message_id is %s" % self.recv_msg.message_id
                 # print "message_body_md5 is %s" %
@@ -101,7 +102,28 @@ class FenyinMQSClient:
                 if self.__lock.locked():
                     self.__lock.release()
 
-                # sys.exit(1)
+                    # sys.exit(1)
+
+    def MQS_SendMsg(self, msg):
+        # send message
+        for i in range(3):
+            try:
+                msg = Message(msg)
+                self.__lock.acquire()
+
+                self.my_queue.send_message(msg)
+
+                self.__lock.release()
+
+                logging.info("Send Message Succeed.")
+                break
+            except Exception, e:
+                self.__lock.release()
+                logging.warning("Send Message Fail: %s" % e.message)
+            finally:
+                if self.__lock.locked():
+                    self.__lock.release()
+
 
     def __init__(self, Settings):
         logging.debug("initialize fenyin mqs client")
