@@ -47,7 +47,8 @@ class FenyinMQSClient:
         return None
 
     def __receive_mqs_message(self):
-        self.recv_msg = self.my_queue.receive_message()
+        _msg = self.my_queue.receive_message()
+        self.recv_msg = _msg
 
     def MQS_RenewMsg(self):
 
