@@ -185,6 +185,10 @@ def WorkerThread():
         # record all the message
         record_mqs_message(jobj)
 
+        # task process begin
+        # change the - to normal char
+        jobj["id"].replace("-", "x")
+
         # security check
         res = check_task_security(jobj)
 
