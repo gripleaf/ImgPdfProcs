@@ -149,91 +149,96 @@ def check_task_security(jobj):
 
 
 def WorkerThread():
-    while True:
+    try:
+        while True:
 
-        # task beginning
-        logging.info(">>>>>>>>>>>>>>>>>")
-        # get task
-        msg_recv = _mqsClient.MQS_ReceiveMsg()
-        if not hasattr(msg_recv, "message_body"):
-            time.sleep(1.5)
-            continue
+            # task beginning
+            logging.info(">>>>>>>>>>>>>>>>>")
+            # get task
+            msg_recv = _mqsClient.MQS_ReceiveMsg()
+            if not hasattr(msg_recv, "message_body"):
+                time.sleep(1.5)
+                continue
 
-        try:
-            jobj = json.loads(msg_recv.message_body)
+            try:
+                jobj = json.loads(msg_recv.message_body)
 
-            for ite in Settings.Msg_Format:
-                if not jobj.has_key(ite):
-                    raise ValueError("necessary key lack like " + ite)
+                for ite in Settings.Msg_Format:
+                    if not jobj.has_key(ite):
+                        raise ValueError("necessary key lack like " + ite)
 
-        except Exception, e:
-            logging.error("load json failed %s" % e.message)
+            except Exception, e:
+                logging.error("load json failed %s" % e.message)
 
-        # check file on oss
-        res = check_file_on_oss(jobj['key'] + "-tbl") and check_file_on_oss(jobj['key'] + "-img0")
+            # check file on oss
+            res = check_file_on_oss(jobj['key'] + "-tbl") and check_file_on_oss(jobj['key'] + "-img0")
 
-        # if file on oss, then delete msg
-        if res == True:
-            logging.info("&&files has already on oss&&")
-            # if jobj has key callback, then call it.
+            # if file on oss, then delete msg
+            if res == True:
+                logging.info("&&files has already on oss&&")
+                # if jobj has key callback, then call it.
+                if jobj.has_key("callback"):
+                    handle_callback(jobj["callback"])
+                # delete mqs msg
+                _mqsClient.MQS_DeleteMsg()
+                continue
+
+            # record all the message
+            record_mqs_message(jobj)
+
+            # task process begin
+            # change the - to normal char
+            jobj["id"].replace("-", "x")
+
+            # security check
+            res = check_task_security(jobj)
+
+            # if not safe enough to handle the task
+            if not res:
+                logging.info("!!!Not Safe Enough to process!!!")
+                return
+
+            # download file from oss
+            res = download_from_oss(jobj["key"], jobj["id"])
+
+            # if file download failed, then delete msg
+            if res == False:
+                # delete mqs msg
+                _mqsClient.MQS_DeleteMsg()
+                continue
+
+            # create the pdf process task
+            proc_pdf = create_pdf_task(jobj["id"])
+
+            # if proc_pdf is None, then delete msg
+            if proc_pdf is None:
+                # delete mqs msg
+                _mqsClient.MQS_DeleteMsg()
+                continue
+
+            # handle engine
+            res_pdf, res_img = handle_pdf_process(proc_pdf)
+
+            # upload file to oss
+            # upload_to_oss(jobj["key"], res)
+            if res_pdf is not None:
+                upload_pdf_to_oss(jobj["key"], res_pdf)
+
+            if res_img is not None:
+                upload_img_to_oss(jobj["key"], res_img)
+
             if jobj.has_key("callback"):
                 handle_callback(jobj["callback"])
+
             # delete mqs msg
             _mqsClient.MQS_DeleteMsg()
-            continue
 
-        # record all the message
-        record_mqs_message(jobj)
+            # task ended
+            logging.info("<<<<<<<<<<<<<<<<<")
 
-        # task process begin
-        # change the - to normal char
-        jobj["id"].replace("-", "x")
-
-        # security check
-        res = check_task_security(jobj)
-
-        # if not safe enough to handle the task
-        if not res:
-            logging.info("!!!Not Safe Enough to process!!!")
-            return
-
-        # download file from oss
-        res = download_from_oss(jobj["key"], jobj["id"])
-
-        # if file download failed, then delete msg
-        if res == False:
-            # delete mqs msg
-            _mqsClient.MQS_DeleteMsg()
-            continue
-
-        # create the pdf process task
-        proc_pdf = create_pdf_task(jobj["id"])
-
-        # if proc_pdf is None, then delete msg
-        if proc_pdf is None:
-            # delete mqs msg
-            _mqsClient.MQS_DeleteMsg()
-            continue
-
-        # handle engine
-        res_pdf, res_img = handle_pdf_process(proc_pdf)
-
-        # upload file to oss
-        # upload_to_oss(jobj["key"], res)
-        if res_pdf is not None:
-            upload_pdf_to_oss(jobj["key"], res_pdf)
-
-        if res_img is not None:
-            upload_img_to_oss(jobj["key"], res_img)
-
-        if jobj.has_key("callback"):
-            handle_callback(jobj["callback"])
-
-        # delete mqs msg
-        _mqsClient.MQS_DeleteMsg()
-
-        # task ended
-        logging.info("<<<<<<<<<<<<<<<<<")
+    except Exception, e:
+        # throw a dead error that will kill the thread, it's a very sad thing.
+        logging.error("Evil Error: %s" % e.message)
 
 
 def main():
