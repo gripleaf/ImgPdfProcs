@@ -148,6 +148,35 @@ def check_task_security(jobj):
     return True
 
 
+def remove_all_useless_files(jobj):
+    '''remove all the useless files we don't need
+    :param jobj: message dict
+    :return: True -> yes, False -> no
+    '''
+    try:
+        # source file
+        source_file = os.path.join(Settings.Pdf_Path["source"], jobj["id"] + ".pdf")
+        # pdf2image path
+        p2i_path = os.path.join(Settings.Pdf2Img, jobj["id"])
+        # to image file
+        img_file = os.path.join(Settings.Pdf_Path["toimg"], jobj["id"] + ".png")
+        # transformed file
+        trans_file = os.path.join(Settings.Pdf_Path["transformed"], jobj["id"] + ".pdf")
+
+        _filelist = [source_file, img_file, trans_file]
+        if os.path.isdir(p2i_path):
+            _filelist.extend([os.path.join(p2i_path, _filename) for _filename in os.listdir(p2i_path)])
+
+        for _file in _filelist:
+            if os.path.isfile(_file):
+                os.remove(_file)
+
+        if os.path.isdir(p2i_path) and len(os.listdir(p2i_path)) == 0:
+            os.rmdir(p2i_path)
+    except Exception, e:
+        logging.warning("[remove file failed] %s" % e.message)
+
+
 def WorkerThread():
     try:
         while True:
@@ -184,7 +213,7 @@ def WorkerThread():
                 continue
 
             # record all the message
-            record_mqs_message(jobj)
+            # record_mqs_message(jobj)
 
             # task process begin
             # change the - to normal char
@@ -232,6 +261,9 @@ def WorkerThread():
 
             # delete mqs msg
             _mqsClient.MQS_DeleteMsg()
+
+            # remove file
+            remove_all_useless_files(jobj)
 
             # task ended
             logging.info("<<<<<<<<<<<<<<<<<")
