@@ -148,6 +148,15 @@ def check_task_security(jobj):
     return True
 
 
+def heart_live_forever(pid_path):
+    ''' check the threads are dead? then create new threads
+    :return: null
+    '''
+    if len(os.listdir(pid_path)) > 6:
+        return
+    else:
+        os.system("python Main.py start")
+
 def remove_all_useless_files(jobj):
     '''remove all the useless files we don't need
     :param jobj: message dict
@@ -298,6 +307,7 @@ def main():
             continue
 
         _mqsClient.MQS_RenewMsg()
+        heart_live_forever(Settings.PidPath)
 
 
 if __name__ == "__main__":
