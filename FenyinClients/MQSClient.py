@@ -142,6 +142,23 @@ class FenyinMQSClient:
         # reveive message
         # MQS_ReceiveMsg(my_queue)
 
+    def __init__(self, AccessId, AccessKey, MQSQueueName, MQSServerName):
+        logging.debug("initialize fenyin mqs client")
+        accessId = AccessId
+        accessKey = AccessKey
+        queue_name = MQSQueueName
+        server_name = MQSServerName
+        # print Settings.MQS["ServerName"]
+        self.mqs_client = MQSClient(
+            str(server_name), str(accessId), str(accessKey))
+
+        self.my_queue = Queue(str(queue_name), self.mqs_client)
+        # get lock  which is use to every operation about mqs
+        self.__lock = threading.Lock()
+
+        # reveive message
+        # MQS_ReceiveMsg(my_queue)
+
 
 if __name__ == "__main__":
     # print "unable to solve this problem"

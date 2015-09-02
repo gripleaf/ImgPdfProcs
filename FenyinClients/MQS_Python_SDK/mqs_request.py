@@ -90,6 +90,7 @@ class GetQueueAttributesResponse(ResponseBase):
 
 class SendMessageRequest(RequestBase):
     def __init__(self, queue_name, message_body, delay_seconds = -1, priority = -1, base64encode = True):
+        base64encode = False
         RequestBase.__init__(self)
         self.queue_name = queue_name
         self.message_body = message_body
@@ -124,6 +125,7 @@ class PeekMessageResponse(ResponseBase):
 
 class ReceiveMessageRequest(RequestBase):
     def __init__(self, queue_name, base64decode = False, wait_seconds = -1):
+        # add by zzy
         base64decode = False
         RequestBase.__init__(self)
         self.queue_name = queue_name
